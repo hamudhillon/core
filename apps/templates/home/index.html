@@ -1,36 +1,291 @@
 {% extends "layouts/base.html" %} {% block title %} Dashboard {% endblock %}
 
 <!-- Specific Page CSS goes HERE  -->
-{% block stylesheets %}{% endblock stylesheets %} {% block content %}
+{% block stylesheets %}
+<style>
+  .tablehead .iconside {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+</style>
+
+{% endblock stylesheets %} {% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="card card-chart">
+      <div class="card-header">
+        <div class="row">
+          <div class="col-sm-6 text-left">
+            <h5 class="card-category">Per day</h5>
+            <h2 class="card-title">Movies</h2>
+          </div>
+          <div class="col-sm-6">
+            <div
+              class="btn-group btn-group-toggle float-right"
+              data-toggle="buttons"
+            >
+              <label class="btn btn-sm btn-primary btn-simple active" id="0">
+                <input type="radio" name="options" checked />
+                <span class="d-none d-sm-block d-md-block d-lg-block d-xl-block"
+                  >Action</span
+                >
+                <span class="d-block d-sm-none">
+                  <i class="tim-icons icon-single-02"></i>
+                </span>
+              </label>
+              <label class="btn btn-sm btn-primary btn-simple" id="1">
+                <input type="radio" class="d-none d-sm-none" name="options" />
+                <span class="d-none d-sm-block d-md-block d-lg-block d-xl-block"
+                  >Comedy</span
+                >
+                <span class="d-block d-sm-none">
+                  <i class="tim-icons icon-gift-2"></i>
+                </span>
+              </label>
+              <label class="btn btn-sm btn-primary btn-simple" id="2">
+                <input type="radio" class="d-none" name="options" />
+                <span class="d-none d-sm-block d-md-block d-lg-block d-xl-block"
+                  >Horror</span
+                >
+                <span class="d-block d-sm-none">
+                  <i class="tim-icons icon-tap-02"></i>
+                </span>
+              </label>
+              <label class="btn btn-sm btn-primary btn-simple" id="3">
+                <input type="radio" class="d-none" name="options" />
+                <span class="d-none d-sm-block d-md-block d-lg-block d-xl-block"
+                  >Drama</span
+                >
+                <span class="d-block d-sm-none">
+                  <i class="tim-icons icon-tap-02"></i>
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="chart-area">
+          <canvas id="chartBig1"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-lg-4">
+    <div class="card card-chart">
+      <div class="card-header">
+        <h5 class="card-category">Total Movies</h5>
+        <h3 class="card-title">
+          <i class="fa fa-video text-primary"></i> {{data.count}}
+        </h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card card-chart">
+      <div class="card-header">
+        <h5 class="card-category">Total Series</h5>
+        <h3 class="card-title">
+          <i class="fa fa-video text-primary"></i> {{series.count}}
+        </h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card card-chart">
+      <div class="card-header">
+        <h5 class="card-category">Total KSA TV</h5>
+        <h3 class="card-title">
+          <i class="fa fa-video text-primary"></i> {{ksatv.count}}
+        </h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card card-chart">
+      <div class="card-header">
+        <h5 class="card-category">Most Movies from Country</h5>
+        <h3 class="card-title">
+          <i class="fa fa-map-marker text-info"></i>{{Country_label.0}}
+        </h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card card-chart">
+      <div class="card-header">
+        {% comment %}
+        <h5 class="card-category">Highest CUM GBO USD</h5>
+        {% endcomment %}
+        <h5 class="card-category">
+          <span class="badge badge-primary">{{data.first.1}}</span> Having
+          Highest CUM GBO USD
+        </h5>
+        <h3 class="card-title">
+          <i class="fa fa-dollar-sign text-success"></i>
+          {% load humanize %} {{data.first.2|floatformat:0|intword}}
+        </h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card card-chart">
+      <div class="card-header">
+        {% comment %}
+        <h5 class="card-category">Highest CUM GBO USD</h5>
+        {% endcomment %}
+        <h5 class="card-category">
+          <span class="badge badge-primary"
+            >{{prod_companies_WBO.first.0}}</span
+          >
+          Having Highest Worldwide BO
+        </h5>
+        <h3 class="card-title">
+          <i class="fa fa-dollar-sign text-success"></i>
+          {% load humanize %}
+          {{prod_companies_WBO.first.1|floatformat:0|intword}}
+        </h3>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div class="row">
-  <div class="col-lg- col-md-12">
-    <div class="card">
+  <div class="col-lg-12">
+    <div class="card card-chart">
       <div class="card-header">
-        <h4 class="card-title">All Data</h4>
+        <h5 class="card-category">Movie Released per Months</h5>
+        <h3 class="card-title">
+          <i class="tim-icons icon-shape-star text-info"></i>Movie/Month
+        </h3>
       </div>
+      <div class="card-body">
+        <div class="chart-area">
+          <canvas id="chartLinePurple"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-8">
+    <div class="card card-chart">
+      <div class="card-header">
+        <h5 class="card-category">Most Movies from Country</h5>
+        <h3 class="card-title">
+          <i class="fa fa-map-signs text-info"></i>
+          Movies/Country
+        </h3>
+      </div>
+      <div class="card-body">
+        <div class="chart-area">
+          <canvas id="CountryChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card card-chart">
+      <div class="card-header">
+        <h5 class="card-category">Most Movies From</h5>
+        <h3 class="card-title">
+          <i class="fa fa-play text-success"></i>
+          {{Most_movies_on}}
+        </h3>
+      </div>
+      <div class="card-body">
+        <div class="chart-area">
+          <canvas id="chartLineGreen"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card card-chart">
+      <div class="card-header">
+        <h5 class="card-category">Most Movies from Genre</h5>
+        <h3 class="card-title">
+          <i class="fa fa-map-signs text-info"></i>
+          Movies/Genre
+        </h3>
+      </div>
+      <div class="card-body">
+        <div class="chart-area">
+          <canvas id="GenreChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card card-chart">
+      <div class="card-header">
+        <h5 class="card-category">Most seriess From</h5>
+        <h3 class="card-title">
+          <i class="fa fa-play text-success"></i>
+          {{Most_series_on |capfirst}}
+        </h3>
+      </div>
+      <div class="card-body">
+        <div class="chart-area">
+          <canvas id="chartLineGreen_series"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-6 col-md-12">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between">
+        <h4 class="card-title">Top Rated 7 Movies</h4>
+      </div>
       <div class="card-body">
         <div class="table-responsive">
           <table class="table tablesorter" id="">
-            {% for i in data %} {% if forloop.first %}
-            <thead class="text-primary">
-              <tr>
-                {% for f in i.keys %}
-                <th>{{f}}</th>
-                {% endfor %}
-              </tr>
-            </thead>
-            {% endif %}
+            <tr class="tablehead">
+              <th class="text-primary text-nowrap" scope="col">Rating</th>
+              <th class="text-primary text-nowrap" scope="col">Film</th>
+              <th class="text-primary text-nowrap" scope="col">CUM GBO USD</th>
+            </tr>
 
-            <tbody>
-              <tr>
-                {% for value in i.values %}
-
-                <td>{{ value }}</td>
-                {% endfor %}
-              </tr>
-            </tbody>
+            {% for i in Movies_rating|slice:":7" %}
+            <tr>
+              <td class="text-nowrap">{{i.0 }}</td>
+              <td class="text-nowrap">{{i.1 }}</td>
+              <td class="text-nowrap">${{i.2|floatformat:0|intword }}</td>
+            </tr>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6 col-md-12">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between">
+        <h4 class="card-title">Top 7 Movies With respect to CUM GBO USD</h4>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table tablesorter" id="">
+            <tr class="tablehead">
+              <th class="text-primary text-nowrap" scope="col">Rank</th>
+              <th class="text-primary text-nowrap" scope="col">Film</th>
+              <th class="text-primary text-nowrap" scope="col">CUM GBO USD</th>
+            </tr>
+            {% for i in data|slice:":7" %}
+            <tr>
+              <td class="text-nowrap">{{forloop.counter}}</td>
+              <td class="text-nowrap">{{i.1 }}</td>
+              <td class="text-nowrap">${{i.2|floatformat:0|intword}}</td>
+            </tr>
             {% endfor %}
           </table>
         </div>
@@ -39,16 +294,1134 @@
   </div>
 </div>
 
+<div class="row">
+  <div class="col-lg-6 col-md-12">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between">
+        <h4 class="card-title">Top 7 Movies With respect to CUM AMD</h4>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table tablesorter" id="">
+            <tr class="tablehead">
+              <th class="text-primary text-nowrap" scope="col">Rank</th>
+              <th class="text-primary text-nowrap" scope="col">Film</th>
+              <th class="text-primary text-nowrap" scope="col">CUM AMD</th>
+            </tr>
+
+            {% for i in cum_adm|slice:":7" %}
+            <tr>
+              <td class="text-nowrap">{{forloop.counter}}</td>
+              <td class="text-nowrap">{{i.1 }}</td>
+              <td class="text-nowrap">{{i.2|floatformat:0|intcomma }}</td>
+            </tr>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6 col-md-12">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between">
+        <h4 class="card-title">Top 7 Movies With respect to CUM BO</h4>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table tablesorter" id="">
+            <tr class="tablehead">
+              <th class="text-primary text-nowrap" scope="col">Rank</th>
+              <th class="text-primary text-nowrap" scope="col">Film</th>
+              <th class="text-primary text-nowrap" scope="col">CUM BO</th>
+            </tr>
+            {% for i in cum_bo|slice:":7" %}
+            <tr>
+              <td class="text-nowrap">{{forloop.counter}}</td>
+              <td class="text-nowrap">{{i.1 }}</td>
+              <td class="text-nowrap">SAR {{i.2|floatformat:0|intword}}</td>
+            </tr>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-6 col-md-12">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between">
+        <h4 class="card-title">Top 10 Rated Movies on Netflix</h4>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table tablesorter" id="">
+            <tr class="tablehead">
+              <th class="text-primary text-nowrap" scope="col">Rating</th>
+              <th class="text-primary text-nowrap" scope="col">Film</th>
+              <th class="text-primary text-nowrap" scope="col">Streamer</th>
+            </tr>
+
+            {% for i in Movies_rating_netflix|slice:":10" %}
+            <tr>
+              <td class="text-nowrap">{{i.0 }}</td>
+              <td class="text-nowrap">{{i.1 }}</td>
+              <td class="text-nowrap">{{i.2 }}</td>
+            </tr>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6 col-md-12">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between">
+        <h4 class="card-title">Top 10 Rated Movies on Amazon</h4>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table tablesorter" id="">
+            <tr class="tablehead">
+              <th class="text-primary text-nowrap" scope="col">Rank</th>
+              <th class="text-primary text-nowrap" scope="col">Film</th>
+              <th class="text-primary text-nowrap" scope="col">Streamer</th>
+            </tr>
+
+            {% for i in Movies_rating_Amazon|slice:":10" %}
+            <tr>
+              <td class="text-nowrap">{{i.0 }}</td>
+              <td class="text-nowrap">{{i.1 }}</td>
+              <td class="text-nowrap">{{i.2 }}</td>
+            </tr>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-6 col-md-12">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between">
+        <h4 class="card-title">Most Movies By Production Companies</h4>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table tablesorter" id="">
+            <tr class="tablehead">
+              <th class="text-primary text-nowrap" scope="col">Rank</th>
+              <th class="text-primary text-nowrap" scope="col">Company</th>
+              <th class="text-primary text-nowrap" scope="col">No of Movies</th>
+            </tr>
+
+            {% for i in prod_companies_num_mov|slice:":10" %}
+            <tr>
+              <td class="text-nowrap">{{forloop.counter }}</td>
+              <td class="text-nowrap">{{i.0 }}</td>
+              <td class="text-nowrap">{{i.1 }}</td>
+            </tr>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6 col-md-12">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between">
+        <h4 class="card-title">
+          Production Companies According to Worldwide BO
+        </h4>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table tablesorter" id="">
+            <tr class="tablehead">
+              <th class="text-primary text-nowrap" scope="col">Rank</th>
+              <th class="text-primary text-nowrap" scope="col">Company</th>
+              <th class="text-primary text-nowrap" scope="col">Worldwide BO</th>
+            </tr>
+
+            {% for i in prod_companies_WBO|slice:":10" %}
+            <tr>
+              <td class="text-nowrap">{{forloop.counter }}</td>
+              <td class="text-nowrap">{{i.0 }}</td>
+              <td class="text-nowrap">$ {{i.1|intword}}</td>
+            </tr>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6 col-md-12">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between">
+        <h4 class="card-title">Top 10 Rated Series</h4>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table tablesorter" id="">
+            <tr class="tablehead">
+              <th class="text-primary text-nowrap" scope="col">Rating</th>
+              <th class="text-primary text-nowrap" scope="col">Series Name</th>
+              <th class="text-primary text-nowrap" scope="col">Streamer</th>
+            </tr>
+
+            {% for i in Series_rating|slice:":10" %}
+            <tr>
+              <td class="text-nowrap">{{i.0 }}</td>
+              <td class="text-nowrap">{{i.1 }}</td>
+              <td class="text-nowrap">{{i.2 }}</td>
+            </tr>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
 
 <script>
-  $(document).ready(function () {
-    // Javascript method's body can be found in assets/js/demos.js
-    demo.initDashboardPageCharts();
-  });
+    $(document).ready(function () {
+
+      type = ["primary", "info", "success", "warning", "danger"];
+  demo = {
+    initPickColor: function () {
+      $(".pick-class-label").click(function () {
+        var new_class = $(this).attr("new-class");
+        var old_class = $("#display-buttons").attr("data-class");
+        var display_div = $("#display-buttons");
+        if (display_div.length) {
+          var display_buttons = display_div.find(".btn");
+          display_buttons.removeClass(old_class);
+          display_buttons.addClass(new_class);
+          display_div.attr("data-class", new_class);
+        }
+      });
+    },
+
+    initDocChart: function () {
+      chartColor = "#FFFFFF";
+
+      // General configuration for the charts with Line gradientStroke
+      gradientChartOptionsConfiguration = {
+        maintainAspectRatio: false,
+        legend: {
+          display: false,
+        },
+        tooltips: {
+          bodySpacing: 4,
+          mode: "nearest",
+          intersect: 0,
+          position: "nearest",
+          xPadding: 10,
+          yPadding: 10,
+          caretPadding: 10,
+        },
+        responsive: true,
+        scales: {
+          yAxes: [
+            {
+              display: 0,
+              gridLines: 0,
+              ticks: {
+                display: false,
+              },
+              gridLines: {
+                zeroLineColor: "transparent",
+                drawTicks: false,
+                display: false,
+                drawBorder: false,
+              },
+            },
+          ],
+          xAxes: [
+            {
+              display: 0,
+              gridLines: 0,
+              ticks: {
+                display: false,
+              },
+              gridLines: {
+                zeroLineColor: "transparent",
+                drawTicks: false,
+                display: false,
+                drawBorder: false,
+              },
+            },
+          ],
+        },
+        layout: {
+          padding: {
+            left: 0,
+            right: 0,
+            top: 15,
+            bottom: 15,
+          },
+        },
+      };
+
+      ctx = document.getElementById("lineChartExample").getContext("2d");
+
+      gradientStroke = ctx.createLinearGradient(500, 0, 100, 0);
+      gradientStroke.addColorStop(0, "#80b6f4");
+      gradientStroke.addColorStop(1, chartColor);
+
+      gradientFill = ctx.createLinearGradient(0, 170, 0, 50);
+      gradientFill.addColorStop(0, "rgba(128, 182, 244, 0)");
+      gradientFill.addColorStop(1, "rgba(249, 99, 59, 0.40)");
+
+      myChart = new Chart(ctx, {
+        type: "line",
+        responsive: true,
+        data: {
+          labels: [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+          ],
+          datasets: [
+            {
+              label: "Active Users",
+              borderColor: "#f96332",
+              pointBorderColor: "#FFF",
+              pointBackgroundColor: "#f96332",
+              pointBorderWidth: 2,
+              pointHoverRadius: 4,
+              pointHoverBorderWidth: 1,
+              pointRadius: 4,
+              fill: true,
+              backgroundColor: gradientFill,
+              borderWidth: 2,
+              data: [542, 480, 430, 550, 530, 453, 380, 434, 568, 610, 700, 630],
+            },
+          ],
+        },
+        options: gradientChartOptionsConfiguration,
+      });
+    },
+
+    initDashboardPageCharts: function () {
+      gradientChartOptionsConfigurationWithTooltipBlue = {
+        maintainAspectRatio: false,
+        legend: {
+          display: false,
+        },
+
+        tooltips: {
+          backgroundColor: "#f5f5f5",
+          titleFontColor: "#333",
+          bodyFontColor: "#666",
+          bodySpacing: 4,
+          xPadding: 12,
+          mode: "nearest",
+          intersect: 0,
+          position: "nearest",
+        },
+        responsive: true,
+        scales: {
+          yAxes: [
+            {
+              barPercentage: 1.6,
+              gridLines: {
+                drawBorder: false,
+                color: "rgba(29,140,248,0.0)",
+                zeroLineColor: "transparent",
+              },
+              ticks: {
+                suggestedMin: 60,
+                suggestedMax: 125,
+                padding: 20,
+                fontColor: "#2380f7",
+              },
+            },
+          ],
+
+          xAxes: [
+            {
+              barPercentage: 1.6,
+              gridLines: {
+                drawBorder: false,
+                color: "rgba(29,140,248,0.1)",
+                zeroLineColor: "transparent",
+              },
+              ticks: {
+                padding: 20,
+                fontColor: "#2380f7",
+              },
+            },
+          ],
+        },
+      };
+
+      gradientChartOptionsConfigurationWithTooltipPurple = {
+        maintainAspectRatio: false,
+        legend: {
+          display: false,
+        },
+
+        tooltips: {
+          backgroundColor: "#f5f5f5",
+          titleFontColor: "#333",
+          bodyFontColor: "#666",
+          bodySpacing: 4,
+          xPadding: 12,
+          mode: "nearest",
+          intersect: 0,
+          position: "nearest",
+        },
+        responsive: true,
+        scales: {
+          yAxes: [
+            {
+              barPercentage: 1.6,
+              gridLines: {
+                drawBorder: false,
+                color: "rgba(29,140,248,0.0)",
+                zeroLineColor: "transparent",
+              },
+              ticks: {
+                suggestedMin: 60,
+                suggestedMax: 125,
+                padding: 20,
+                fontColor: "#9a9a9a",
+              },
+            },
+          ],
+
+          xAxes: [
+            {
+              barPercentage: 1.6,
+              gridLines: {
+                drawBorder: false,
+                color: "rgba(225,78,202,0.1)",
+                zeroLineColor: "transparent",
+              },
+              ticks: {
+                padding: 20,
+                fontColor: "#9a9a9a",
+              },
+            },
+          ],
+        },
+      };
+
+      gradientChartOptionsConfigurationWithTooltipOrange = {
+        maintainAspectRatio: false,
+        legend: {
+          display: false,
+        },
+
+        tooltips: {
+          backgroundColor: "#f5f5f5",
+          titleFontColor: "#333",
+          bodyFontColor: "#666",
+          bodySpacing: 4,
+          xPadding: 12,
+          mode: "nearest",
+          intersect: 0,
+          position: "nearest",
+        },
+        responsive: true,
+        scales: {
+          yAxes: [
+            {
+              barPercentage: 1.6,
+              gridLines: {
+                drawBorder: false,
+                color: "rgba(29,140,248,0.0)",
+                zeroLineColor: "transparent",
+              },
+              ticks: {
+                suggestedMin: 50,
+                suggestedMax: 110,
+                padding: 20,
+                fontColor: "#ff8a76",
+              },
+            },
+          ],
+
+          xAxes: [
+            {
+              barPercentage: 1.6,
+              gridLines: {
+                drawBorder: false,
+                color: "rgba(220,53,69,0.1)",
+                zeroLineColor: "transparent",
+              },
+              ticks: {
+                padding: 20,
+                fontColor: "#ff8a76",
+              },
+            },
+          ],
+        },
+      };
+
+      gradientChartOptionsConfigurationWithTooltipGreen = {
+        maintainAspectRatio: false,
+        legend: {
+          display: false,
+        },
+
+        tooltips: {
+          backgroundColor: "#f5f5f5",
+          titleFontColor: "#333",
+          bodyFontColor: "#666",
+          bodySpacing: 4,
+          xPadding: 12,
+          mode: "nearest",
+          intersect: 0,
+          position: "nearest",
+        },
+        responsive: true,
+        scales: {
+          yAxes: [
+            {
+              barPercentage: 1.6,
+              gridLines: {
+                drawBorder: false,
+                color: "rgba(29,140,248,0.0)",
+                zeroLineColor: "transparent",
+              },
+              ticks: {
+                suggestedMin: 50,
+                suggestedMax: 125,
+                padding: 20,
+                fontColor: "#9e9e9e",
+              },
+            },
+          ],
+
+          xAxes: [
+            {
+              barPercentage: 1.6,
+              gridLines: {
+                drawBorder: false,
+                color: "rgba(0,242,195,0.1)",
+                zeroLineColor: "transparent",
+              },
+              ticks: {
+                padding: 20,
+                fontColor: "#9e9e9e",
+              },
+            },
+          ],
+        },
+      };
+
+      gradientBarChartConfiguration = {
+        maintainAspectRatio: false,
+        legend: {
+          display: false,
+        },
+
+        tooltips: {
+          backgroundColor: "#f5f5f5",
+          titleFontColor: "#333",
+          bodyFontColor: "#666",
+          bodySpacing: 4,
+          xPadding: 12,
+          mode: "nearest",
+          intersect: 0,
+          position: "nearest",
+        },
+        responsive: true,
+        scales: {
+          yAxes: [
+            {
+              gridLines: {
+                drawBorder: false,
+                color: "rgba(29,140,248,0.1)",
+                zeroLineColor: "transparent",
+              },
+              ticks: {
+                suggestedMin: 60,
+                suggestedMax: 120,
+                padding: 20,
+                fontColor: "#9e9e9e",
+              },
+            },
+          ],
+
+          xAxes: [
+            {
+              gridLines: {
+                drawBorder: false,
+                color: "rgba(29,140,248,0.1)",
+                zeroLineColor: "transparent",
+              },
+              ticks: {
+                padding: 20,
+                fontColor: "#9e9e9e",
+              },
+            },
+          ],
+        },
+      };
+
+      var ctx = document.getElementById("chartLinePurple").getContext("2d");
+
+      var gradientStroke = ctx.createLinearGradient(0, 230, 0, 50);
+
+      gradientStroke.addColorStop(1, "rgba(72,72,176,0.2)");
+      gradientStroke.addColorStop(0.2, "rgba(72,72,176,0.0)");
+      gradientStroke.addColorStop(0, "rgba(119,52,169,0)"); //purple colors
+
+      var data = {
+        labels: [{% for i in movies_month_label_release %}'{{i}}', {% endfor %}],
+        datasets: [
+          {
+            label: "Number of Movies",
+            fill: true,
+            backgroundColor: gradientStroke,
+            borderColor: "#d048b6",
+            borderWidth: 2,
+            borderDash: [],
+            borderDashOffset: 0.0,
+            pointBackgroundColor: "#d048b6",
+            pointBorderColor: "rgba(255,255,255,0)",
+            pointHoverBackgroundColor: "#d048b6",
+            pointBorderWidth: 20,
+            pointHoverRadius: 4,
+            pointHoverBorderWidth: 15,
+            pointRadius: 4,
+            data: [{% for i in movies_month_count_release%}'{{i}}', {% endfor %}],
+          },
+        ],
+      };
+
+      var myChart = new Chart(ctx, {
+        type: "line",
+        data: data,
+        options: gradientChartOptionsConfigurationWithTooltipPurple,
+      });
+
+      var ctxGreen = document.getElementById("chartLineGreen").getContext("2d");
+
+      var gradientStroke = ctx.createLinearGradient(0, 230, 0, 50);
+
+      gradientStroke.addColorStop(1, "rgba(66,134,121,0.15)");
+      gradientStroke.addColorStop(0.4, "rgba(66,134,121,0.0)"); //green colors
+      gradientStroke.addColorStop(0, "rgba(66,134,121,0)"); //green colors
+
+      var data = {
+        labels: ["Netflix", "Amazon", "HULU", "Disney", "iTunes"],
+        datasets: [
+          {
+            label: "Number of Movies",
+            fill: true,
+            backgroundColor: gradientStroke,
+            borderColor: "#00d6b4",
+            borderWidth: 2,
+            borderDash: [],
+            borderDashOffset: 0.0,
+            pointBackgroundColor: "#00d6b4",
+            pointBorderColor: "rgba(255,255,255,0)",
+            pointHoverBackgroundColor: "#00d6b4",
+            pointBorderWidth: 20,
+            pointHoverRadius: 4,
+            pointHoverBorderWidth: 15,
+            pointRadius: 4,
+            data: [{{Movies_Netflix}}, {{Movies_Amazone}}, {{Movies_hulu}}, {{Movies_Disney}}, {{Movies_iTunes}}],
+          },
+        ],
+      };
+
+      var myChart = new Chart(ctxGreen, {
+        type: "line",
+        data: data,
+        options: gradientChartOptionsConfigurationWithTooltipGreen,
+      });
+
+
+
+      var ctxGreen = document.getElementById("chartLineGreen_series").getContext("2d");
+
+      var gradientStroke = ctx.createLinearGradient(0, 230, 0, 50);
+
+      gradientStroke.addColorStop(1, "rgba(66,134,121,0.15)");
+      gradientStroke.addColorStop(0.4, "rgba(66,134,121,0.0)"); //green colors
+      gradientStroke.addColorStop(0, "rgba(66,134,121,0)"); //green colors
+
+      var data = {
+        labels: ["Netflix", "Shahid", "viu", "Weyyak", "OSN+"],
+        datasets: [
+          {
+            label: "Number of Series",
+            fill: true,
+            backgroundColor: gradientStroke,
+            borderColor: "#00d6b4",
+            borderWidth: 2,
+            borderDash: [],
+            borderDashOffset: 0.0,
+            pointBackgroundColor: "#00d6b4",
+            pointBorderColor: "rgba(255,255,255,0)",
+            pointHoverBackgroundColor: "#00d6b4",
+            pointBorderWidth: 20,
+            pointHoverRadius: 4,
+            pointHoverBorderWidth: 15,
+            pointRadius: 4,
+            data: [{{series_Netflix}}, {{series_shahid}}, {{series_viu}}, {{series_Weyyak}}, {{series_OSN}}],
+          },
+        ],
+      };
+
+      var myChart = new Chart(ctxGreen, {
+        type: "line",
+        data: data,
+        options: gradientChartOptionsConfigurationWithTooltipGreen,
+      });
+
+
+
+      var chart_labels = [{% for i in movies_month_label_release_Action %}'{{i}}', {% endfor %}];
+      var chart_data = [{% for i in movies_month_genre_count_release_Action%}'{{i}}', {% endfor %}];
+
+      var ctx = document.getElementById("chartBig1").getContext("2d");
+
+      var gradientStroke = ctx.createLinearGradient(0, 230, 0, 50);
+
+      gradientStroke.addColorStop(1, "rgba(72,72,176,0.1)");
+      gradientStroke.addColorStop(0.4, "rgba(72,72,176,0.0)");
+      gradientStroke.addColorStop(0, "rgba(119,52,169,0)"); //purple colors
+      var config = {
+        type: "line",
+        data: {
+          labels: chart_labels,
+          datasets: [
+            {
+              label: "Number of Movies",
+              fill: true,
+              backgroundColor: gradientStroke,
+              borderColor: "#d346b1",
+              borderWidth: 2,
+              borderDash: [],
+              borderDashOffset: 0.0,
+              pointBackgroundColor: "#d346b1",
+              pointBorderColor: "rgba(255,255,255,0)",
+              pointHoverBackgroundColor: "#d346b1",
+              pointBorderWidth: 20,
+              pointHoverRadius: 4,
+              pointHoverBorderWidth: 15,
+              pointRadius: 4,
+              data: chart_data,
+            },
+          ],
+        },
+        options: gradientChartOptionsConfigurationWithTooltipPurple,
+      };
+      var myChartData = new Chart(ctx, config);
+      $("#0").click(function () {
+        var data = myChartData.config.data;
+        data.datasets[0].data = chart_data;
+        data.labels = chart_labels;
+        myChartData.update();
+      });
+      $("#1").click(function () {
+        var chart_data = [{% for i in movies_month_genre_count_release_Comedy%}'{{i}}', {% endfor %}];
+        var data = myChartData.config.data;
+        data.datasets[0].data = chart_data;
+        data.labels = chart_labels;
+        myChartData.update();
+      });
+
+      $("#2").click(function () {
+        var chart_data = [{% for i in movies_month_genre_count_release_Horror%}'{{i}}', {% endfor %}];
+        var data = myChartData.config.data;
+        data.datasets[0].data = chart_data;
+        data.labels = chart_labels;
+        myChartData.update();
+      });
+      $("#3").click(function () {
+        var chart_data = [{% for i in movies_month_genre_count_release_Drama%}'{{i}}', {% endfor %}];
+        var data = myChartData.config.data;
+        data.datasets[0].data = chart_data;
+        data.labels = chart_labels;
+        myChartData.update();
+      });
+
+
+
+      var ctx = document.getElementById("CountryChart").getContext("2d");
+
+      var gradientStroke = ctx.createLinearGradient(0, 230, 0, 50);
+
+      gradientStroke.addColorStop(1, "rgba(29,140,248,0.2)");
+      gradientStroke.addColorStop(0.4, "rgba(29,140,248,0.0)");
+      gradientStroke.addColorStop(0, "rgba(29,140,248,0)"); //blue colors
+
+      var myChart = new Chart(ctx, {
+        type: "bar",
+        responsive: true,
+        legend: {
+          display: false,
+        },
+        data: {
+          labels: [{% for i in Country_label|slice:":5" %}'{{i|truncatechars:10}}', {% endfor %}],
+          datasets: [
+            {
+              label: "Movies",
+              fill: true,
+              backgroundColor: gradientStroke,
+              hoverBackgroundColor: gradientStroke,
+              borderColor: "#1f8ef1",
+              borderWidth: 2,
+              borderDash: [],
+              borderDashOffset: 0.0,
+              data: [{% for i in Country_label_count|slice:":5" %}{{i}}, {% endfor %}],
+            },
+          ],
+        },
+        options: gradientBarChartConfiguration,
+      });
+
+      var ctx = document.getElementById("GenreChart").getContext("2d");
+
+      var gradientStroke = ctx.createLinearGradient(0, 230, 0, 50);
+
+      gradientStroke.addColorStop(1, "rgba(72,72,176,0.1)");
+      gradientStroke.addColorStop(0.4, "rgba(72,72,176,0.0)");
+      gradientStroke.addColorStop(0, "rgba(119,52,169,0)");
+
+
+      var hgradientStroke = ctx.createLinearGradient(0, 230, 0, 50);
+
+      hgradientStroke.addColorStop(1, "rgba(72,72,176,0.1)");
+      hgradientStroke.addColorStop(1, "rgba(72,72,176,0.0)");
+      hgradientStroke.addColorStop(1, "rgba(119,52,169,0)");
+
+
+      var myChart = new Chart(ctx, {
+        type: "bar",
+        responsive: true,
+        legend: {
+          display: false,
+        },
+        data: {
+          labels: [{% for i in series_genre_label|slice:":7" %}'{{i}}', {% endfor %}],
+          datasets: [
+            {
+              label: "Series",
+              fill: true,
+              backgroundColor: gradientStroke,
+              hoverBackgroundColor: hgradientStroke,
+              borderColor: "#d346b1",
+              borderWidth: 2,
+              borderDash: [],
+              borderDashOffset: 0.0,
+              data: [{% for i in series_genre_label_count|slice:":7" %}{{i}}, {% endfor %}],
+            },
+          ],
+        },
+        options: gradientBarChartConfiguration,
+      });
+    },
+
+
+
+    initGoogleMaps: function () {
+      var myLatlng = new google.maps.LatLng(40.748817, -73.985428);
+      var mapOptions = {
+        zoom: 13,
+        center: myLatlng,
+        scrollwheel: false, //we disable de scroll over the map, it is a really annoing when you scroll through page
+        styles: [
+          {
+            elementType: "geometry",
+            stylers: [
+              {
+                color: "#1d2c4d",
+              },
+            ],
+          },
+          {
+            elementType: "labels.text.fill",
+            stylers: [
+              {
+                color: "#8ec3b9",
+              },
+            ],
+          },
+          {
+            elementType: "labels.text.stroke",
+            stylers: [
+              {
+                color: "#1a3646",
+              },
+            ],
+          },
+          {
+            featureType: "administrative.country",
+            elementType: "geometry.stroke",
+            stylers: [
+              {
+                color: "#4b6878",
+              },
+            ],
+          },
+          {
+            featureType: "administrative.land_parcel",
+            elementType: "labels.text.fill",
+            stylers: [
+              {
+                color: "#64779e",
+              },
+            ],
+          },
+          {
+            featureType: "administrative.province",
+            elementType: "geometry.stroke",
+            stylers: [
+              {
+                color: "#4b6878",
+              },
+            ],
+          },
+          {
+            featureType: "landscape.man_made",
+            elementType: "geometry.stroke",
+            stylers: [
+              {
+                color: "#334e87",
+              },
+            ],
+          },
+          {
+            featureType: "landscape.natural",
+            elementType: "geometry",
+            stylers: [
+              {
+                color: "#023e58",
+              },
+            ],
+          },
+          {
+            featureType: "poi",
+            elementType: "geometry",
+            stylers: [
+              {
+                color: "#283d6a",
+              },
+            ],
+          },
+          {
+            featureType: "poi",
+            elementType: "labels.text.fill",
+            stylers: [
+              {
+                color: "#6f9ba5",
+              },
+            ],
+          },
+          {
+            featureType: "poi",
+            elementType: "labels.text.stroke",
+            stylers: [
+              {
+                color: "#1d2c4d",
+              },
+            ],
+          },
+          {
+            featureType: "poi.park",
+            elementType: "geometry.fill",
+            stylers: [
+              {
+                color: "#023e58",
+              },
+            ],
+          },
+          {
+            featureType: "poi.park",
+            elementType: "labels.text.fill",
+            stylers: [
+              {
+                color: "#3C7680",
+              },
+            ],
+          },
+          {
+            featureType: "road",
+            elementType: "geometry",
+            stylers: [
+              {
+                color: "#304a7d",
+              },
+            ],
+          },
+          {
+            featureType: "road",
+            elementType: "labels.text.fill",
+            stylers: [
+              {
+                color: "#98a5be",
+              },
+            ],
+          },
+          {
+            featureType: "road",
+            elementType: "labels.text.stroke",
+            stylers: [
+              {
+                color: "#1d2c4d",
+              },
+            ],
+          },
+          {
+            featureType: "road.highway",
+            elementType: "geometry",
+            stylers: [
+              {
+                color: "#2c6675",
+              },
+            ],
+          },
+          {
+            featureType: "road.highway",
+            elementType: "geometry.fill",
+            stylers: [
+              {
+                color: "#9d2a80",
+              },
+            ],
+          },
+          {
+            featureType: "road.highway",
+            elementType: "geometry.stroke",
+            stylers: [
+              {
+                color: "#9d2a80",
+              },
+            ],
+          },
+          {
+            featureType: "road.highway",
+            elementType: "labels.text.fill",
+            stylers: [
+              {
+                color: "#b0d5ce",
+              },
+            ],
+          },
+          {
+            featureType: "road.highway",
+            elementType: "labels.text.stroke",
+            stylers: [
+              {
+                color: "#023e58",
+              },
+            ],
+          },
+          {
+            featureType: "transit",
+            elementType: "labels.text.fill",
+            stylers: [
+              {
+                color: "#98a5be",
+              },
+            ],
+          },
+          {
+            featureType: "transit",
+            elementType: "labels.text.stroke",
+            stylers: [
+              {
+                color: "#1d2c4d",
+              },
+            ],
+          },
+          {
+            featureType: "transit.line",
+            elementType: "geometry.fill",
+            stylers: [
+              {
+                color: "#283d6a",
+              },
+            ],
+          },
+          {
+            featureType: "transit.station",
+            elementType: "geometry",
+            stylers: [
+              {
+                color: "#3a4762",
+              },
+            ],
+          },
+          {
+            featureType: "water",
+            elementType: "geometry",
+            stylers: [
+              {
+                color: "#0e1626",
+              },
+            ],
+          },
+          {
+            featureType: "water",
+            elementType: "labels.text.fill",
+            stylers: [
+              {
+                color: "#4e6d70",
+              },
+            ],
+          },
+        ],
+      };
+
+      var map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+      var marker = new google.maps.Marker({
+        position: myLatlng,
+        title: "Hello World!",
+      });
+
+      // To add the marker to the map, call setMap();
+      marker.setMap(map);
+    },
+
+    showNotification: function (from, align) {
+      color = Math.floor(Math.random() * 4 + 1);
+
+      $.notify(
+        {
+          icon: "tim-icons icon-bell-55",
+          message:
+            "Welcome to <b>Black Dashboard</b> - a beautiful freebie for every web developer.",
+        },
+        {
+          type: type[color],
+          timer: 8000,
+          placement: {
+            from: from,
+            align: align,
+          },
+        }
+      );
+    },
+  };
+
+  demo.initDashboardPageCharts();
+    });
 </script>
 
 {% endblock javascripts %}

@@ -77,5 +77,22 @@
 
     <!-- Specific Page JS goes HERE  -->
     {% block javascripts %}{% endblock javascripts %}
+
+    <script>
+      $(document).ready(function () {
+        $(".search_box").on("keyup", function () {
+          var inp = $(this).val();
+          var key = $("span[data='" + inp + "']").attr("data");
+
+          if (inp == key) {
+            $("span[data='" + inp + "']").removeClass("badge-light");
+            $("span[data='" + inp + "']").addClass("badge-primary");
+          } else {
+            $(".keyword").removeClass("badge-primary");
+            $(".keyword").addClass("badge-light");
+          }
+        });
+      });
+    </script>
   </body>
 </html>

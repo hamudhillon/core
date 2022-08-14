@@ -29,7 +29,6 @@
     <a class="btn btn-primary" type="button" href="/tables/prod_companies">
       Production Companies
     </a>
-
     <button
       class="btn btn-primary"
       type="button"
@@ -69,7 +68,8 @@
   </div>
 </div>
 
-{% comment %} KSA {% endcomment %}
+{% comment %} prod_companies {% endcomment %}
+
 <div class="row">
   <div class="col-lg- col-md-12">
     <div class="card">
@@ -78,11 +78,11 @@
           class="card-title"
           type="button"
           data-toggle="collapse"
-          data-target="#ksa"
+          data-target="#prod_c"
           aria-expanded="false"
-          aria-controls="ksa"
+          aria-controls="prod_c"
         >
-          KSA
+          Production companies
         </h4>
         <div class="dropdown">
           <button
@@ -116,10 +116,10 @@
                 >
                   <span class="textside p-2"> {{f}} </span>
                   <span class="iconside">
-                    <a href="/filter/data/{{f}}/asc"
+                    <a href="/filter/prod_companies/{{f}}/asc"
                       ><i class="fa fa-sort-up"></i
                     ></a>
-                    <a href="/filter/data/{{f}}/dsc"
+                    <a href="/filter/prod_companies/{{f}}/dsc"
                       ><i class="fa fa-sort-down"></i
                     ></a>
                   </span>
@@ -133,70 +133,17 @@
             {% endif %} {% endfor %} {% for i in data %}
             <tr>
               <td class="text-nowrap">
-                <a class="text-danger" href="/delete/data/{{i.Rank}}">
+                <a class="text-danger" href="/delete/prod_companies/{{i.Rank}}">
                   <i class="fa fa-trash"> </i
                 ></a>
               </td>
-              <td class="text-nowrap">{{i.Rank}}</td>
-              <td class="text-nowrap">{{i.FILM}}</td>
-              <td class="text-nowrap">{{i.Genre}}</td>
-              <td class="text-nowrap">{{i.Sub_Genre_1}}</td>
-              <td class="text-nowrap">{{i.Sub_Genre_2}}</td>
-              <td class="text-nowrap">{{i.Rating |floatformat}}</td>
-              <td class="text-nowrap">{{i.Year_of_Release |floatformat:0}}</td>
-              <td class="text-nowrap">{{i.Country}}</td>
-              <td class="text-nowrap">{{i.Run_Time }}</td>
-              <td class="text-nowrap">{{i.Franchise}}</td>
-              <td class="text-nowrap">{{i.Synopsis | truncatechars:100}}</td>
-              <td class="text-nowrap">{{i.Keywords_1}}</td>
-              <td class="text-nowrap">{{i.Keywords_2}}</td>
-              <td class="text-nowrap">{{i.Keywords_3}}</td>
-              <td class="text-nowrap">{{i.Keywords_4}}</td>
-              <td class="text-nowrap">{{i.Production_Method}}</td>
-              <td class="text-nowrap">{{i.Creative_Type}}</td>
               <td class="text-nowrap">{{i.Production_Companies}}</td>
-              <td class="text-nowrap">{{i.Production_Company_1}}</td>
-              <td class="text-nowrap">{{i.Production_Company_2}}</td>
-              <td class="text-nowrap">{{i.Production_Company_3}}</td>
-              <td class="text-nowrap">{{i.Production_Company_4}}</td>
-              <td class="text-nowrap">{{i.Director}}</td>
-              <td class="text-nowrap">{{i.Lead_Actor_1_Name}}</td>
-              <td class="text-nowrap">{{i.Lead_Actor_1_Gender}}</td>
-              <td class="text-nowrap">{{i.Lead_Actor_1_Age |floatformat:0}}</td>
-              <td class="text-nowrap">{{i.Lead_Actor_1_Nationality}}</td>
-              <td class="text-nowrap">{{i.Lead_Actor_2_Name}}</td>
-              <td class="text-nowrap">{{i.Lead_Actor_2_Gender}}</td>
-              <td class="text-nowrap">{{i.Lead_Actor_2_Age |floatformat:0}}</td>
-              <td class="text-nowrap">{{i.Lead_Actor_2_Nationality}}</td>
-              <td class="text-nowrap">{{i.Target_Audience}}</td>
-              <td class="text-nowrap">{{i.Streamer}}</td>
-              <td class="text-nowrap">{{i.Awards_1}}</td>
-              <td class="text-nowrap">{{i.Awards_2}}</td>
-              <td class="text-nowrap">{{i.Awards_3}}</td>
-              <td class="text-nowrap">{{i.Type_of_Deal}}</td>
-              <td class="text-nowrap">{{i.RELEASE_DATE}}</td>
-              <td class="text-nowrap">{{i.DIST}}</td>
-              <td class="text-nowrap">{{i.NO_Screens}}</td>
-              <td class="text-nowrap">{{i.Opening_Day_Amd|intcomma}}</td>
+              <td class="text-nowrap">{{i.No_of_Movies}}</td>
               <td class="text-nowrap">
-                SAR {{i.First_Weekend_BO|floatformat:0|intword |intcomma}}
-              </td>
-              <td class="text-nowrap text-center">
-                {{i.First_Weekend_Amd|floatformat:0 |intcomma}}
+                {{i.Total_Domestic_Box_Office|floatformat:0|intword|intcomma}}
               </td>
               <td class="text-nowrap">
-                SAR {{i.First_Week_BO|floatformat:0|intword |intcomma}}
-              </td>
-              <td class="text-nowrap">
-                {% if i.First_Week_ADM %} {% endif %}
-                {{i.First_Week_ADM|floatformat:0 |intcomma}}
-              </td>
-              <td class="text-nowrap">
-                SAR {{i.CUM_BO|floatformat:0|intword |intcomma}}
-              </td>
-              <td class="text-nowrap">{{i.CUM_ADM|floatformat:0 |intcomma}}</td>
-              <td class="text-nowrap">
-                $ {{i.CUM_GBO_USD|floatformat:0|intword |intcomma}}
+                {{i.Total_Worldwide_Box_Office|floatformat:0|intword|intcomma}}
               </td>
             </tr>
             {% endfor %}
@@ -206,7 +153,6 @@
     </div>
   </div>
 </div>
-
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->

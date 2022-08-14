@@ -9,7 +9,7 @@
           <span class="navbar-toggler-bar bar3"></span>
         </button>
       </div>
-      <a class="navbar-brand" href="javascript:void(0)">Dashboard </a>
+      <a class="navbar-brand" href="javascript:void(0)">LYRA Picture</a>
     </div>
     <button
       class="navbar-toggler"
@@ -33,6 +33,7 @@
             id="search-button"
             data-toggle="modal"
             data-target="#searchModal"
+            onclick="document.querySelector('.search_box').focus();"
           >
             <i class="tim-icons icon-zoom-split"></i>
             <span class="d-lg-none d-md-block">Search</span>
@@ -116,23 +117,61 @@
   aria-hidden="true"
 >
   <div class="modal-dialog" role="document">
+    <span
+      data="ksa:"
+      class="keyword badge badge-light text-dark"
+      style="font-size: 12px"
+    >
+      ksa
+    </span>
+    <span
+      data="ksatv:"
+      class="keyword badge badge-light text-dark"
+      style="font-size: 12px"
+    >
+      ksatv
+    </span>
+    <span
+      data="series:"
+      class="keyword badge badge-light text-dark"
+      style="font-size: 12px"
+    >
+      series
+    </span>
+    <span
+      data="prod_companines:"
+      class="keyword badge badge-light text-dark"
+      style="font-size: 12px"
+    >
+      prod_companines
+    </span>
+    <span
+      data="global:"
+      class="keyword badge badge-light text-dark"
+      style="font-size: 12px"
+    >
+      global</span
+    >
     <div class="modal-content">
-      <div class="modal-header">
-        <input
-          type="text"
-          class="form-control"
-          id="inlineFormInputGroup"
-          placeholder="SEARCH"
-        />
-        <button
-          type="button"
-          class="close"
-          data-dismiss="modal"
-          aria-label="Close"
-        >
-          <i class="tim-icons icon-simple-remove"></i>
-        </button>
-      </div>
+      <form method="get" action="/ALLSEARCH">
+        <div class="modal-header">
+          <input
+            type="text"
+            name="q"
+            class="form-control w-100 search_box"
+            id="inlineFormInputGroup"
+            placeholder="Search with keywords (eg- ksa:bad , ksatv:red, global:getout, prod_companies:warner, series:GTO)"
+          />
+          <button
+            type="button"
+            class="close"
+            data-dismiss="modal"
+            aria-label="Close"
+          >
+            <i class="tim-icons icon-simple-remove"></i>
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </div>

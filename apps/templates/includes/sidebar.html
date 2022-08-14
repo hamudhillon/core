@@ -13,7 +13,7 @@
         href="/"
         class="simple-text logo-normal"
       >
-        Data Analysis
+        Dashboard
       </a>
     </div>
 
@@ -26,12 +26,20 @@
           <p>Dashboard</p>
         </a>
       </li>
-      <li class="{% if 'upload' in segment %} active {% endif %}">
+
+      <li class="{% if 'tables' in segment %} active {% endif %}">
+        <a href="/tables/data">
+          <i class="tim-icons icon-tablet-2"></i>
+          <p>Table</p>
+        </a>
+      </li>
+      <li class="{% if 'uploads' in segment %} active {% endif %}">
         <a href="/upload/">
           <i class="tim-icons icon-upload"></i>
           <p>File Uploads</p>
         </a>
       </li>
+
       {% comment %}
       <li class="{% if 'icons' in segment %} active {% endif %}">
         <a href="/ui-icons.html">
