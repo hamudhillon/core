@@ -5,7 +5,7 @@ Copyright (c) 2019 - present AppSeed.us
 from operator import or_
 from django import template
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect,JsonResponse
 from django.shortcuts import redirect, render
 from django.template import loader
 from django.urls import reverse
@@ -19,10 +19,10 @@ from functools import reduce
 from django.db.models import Q
 
 from .filters import MovieFilter, globalFilter, ksatvFilter, prodcompFilter, seriesFilter
+from django.core import serializers
 
-
-def genre_month_filter(months,genre,context):
-   
+def genre_month_filter(months,genre):
+    
     movies_months_genre=data.objects.filter(Genre__contains=genre).values('RELEASE_DATE')
     genree=[]
     
@@ -42,233 +42,1330 @@ def genre_month_filter(months,genre,context):
     # print(movies_month_label_release)
     movies_month_genre_count_release_genre=list(od.values())
 
-    context.update({f'movies_month_label_release_{genre}':movies_month_label_release_genre})
-    context.update({f'movies_month_genre_count_release_{genre}':movies_month_genre_count_release_genre})
+    return [
+        {f'movies_month_label_release':movies_month_label_release_genre},
+        {f'movies_month_genre_count_release':movies_month_genre_count_release_genre}
+        ]
+    
 
 
 @login_required(login_url="/login/")
-def index(request):
+def index(request,file_name):
+    print(file_name)
     context = {}
-    main_data=pd.DataFrame(data.objects.values())
-    # print(main_data)
 
-    d=data.objects.exclude(Rating__in="nan").values_list('Rating','FILM','CUM_GBO_USD').order_by('-CUM_GBO_USD')
-    cum_bo=data.objects.exclude(FILM__in='-').exclude(Rating__in="nan").values_list('Rating','FILM','CUM_BO').order_by('-CUM_BO')
-    cum_adm=data.objects.exclude(FILM__in='-').exclude(Rating__in="nan").values_list('Rating','FILM','CUM_ADM').order_by('-CUM_ADM')
+    if file_name=='KSA':
+        context = {'Dash':'KSA'}
 
-    # print(cum_adm)
-    context.update({
-        'cum_bo':cum_bo,
-        'cum_adm':cum_adm
-    })
+        main_data=pd.DataFrame(data.objects.values())
+        # print(main_data)
 
-    Movies_rating=data.objects.exclude(FILM__in='-').values_list('Rating','FILM','CUM_GBO_USD').exclude(Rating__in=['','nan','none',None]).order_by('-Rating')
-    Movies_rating_Amazon=data.objects.exclude(FILM__in='-').filter(Streamer__contains='Amazon').values_list('Rating','FILM','Streamer').exclude(Rating__in=['','nan','none',None]).order_by('-Rating')
-    Movies_rating_netflix=data.objects.exclude(FILM__in='-').filter(Streamer__contains='Netflix').values_list('Rating','FILM','Streamer').exclude(Rating__in=['','nan','none',None]).order_by('-Rating')
-    Movies_rating_netflix=data.objects.exclude(FILM__in='-').filter(Streamer__contains='Netflix').values_list('Rating','FILM','Streamer').exclude(Rating__in=['','nan','none',None]).order_by('-Rating')
-    # print(pd.DataFrame(Movies_rating_Amazon))
+        # ----------------------------------------------
+        # | MOVIES PER MONTH BY GENRE (TOP 5-6 GENRES) |
+        # ----------------------------------------------
 
-    Series_rating=series.objects.values_list('Rating','Series_Name','Streamer').order_by('-Rating')
-    prod_companies_num_mov=prod_companies.objects.values_list('Production_Companies','No_of_Movies').order_by('-No_of_Movies')
-    prod_companies_WBO=prod_companies.objects.values_list('Production_Companies','Total_Worldwide_Box_Office').order_by('-Total_Worldwide_Box_Office')
-
-    context.update({
-        'Movies_rating_Amazon':Movies_rating_Amazon,
-        'Movies_rating_netflix':Movies_rating_netflix,
-        'Series_rating':Series_rating,
-        'prod_companies_num_mov':prod_companies_num_mov,
-        'prod_companies_WBO':prod_companies_WBO,
-        'series':series.objects.all(),
-        'ksatv':ksa_tv.objects.all(),
-    })
-
-
-    countries=data.objects.values('Country').annotate(Country_count=Count('Country'))  
-    Series_genre=data.objects.exclude(Genre__in='-').values('Genre').annotate(genre_count=Count('Genre'))  
-    months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] 
-    
-
-
-    genre_month_filter(months,'Action',context)
-    genre_month_filter(months,'Comedy',context)
-    genre_month_filter(months,'Horror',context)
-    genre_month_filter(months,'Drama',context)
-
-
-
-    m=[]
-    movies_months=data.objects.values('RELEASE_DATE')    
-    for i in movies_months:
-        # print(i['RELEASE_DATE'])
-        if i['RELEASE_DATE']:
-            m.append(i['RELEASE_DATE'].strftime('%b'))
+        top_6_Genre_list=[]
+        months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] 
+        TOP_GENRES=data.objects.exclude(Genre__in='-').values('Genre').annotate(genre_count=Count('Genre'))
+        TOP_GENRES=pd.DataFrame(TOP_GENRES)
+        top_6_genre=TOP_GENRES.sort_values(by='genre_count',ascending=False)[:6]
         
-    # m.sort()
+        context.update({'top_6_genre':top_6_genre['Genre']})
+        for i in top_6_genre['Genre']:
+            top_6_Genre_list.append(genre_month_filter(months,str(i).title()))
+
+        context.update({'top_6_Genre_list':top_6_Genre_list})
+        print(context)
+        print('---'*50)
+        # genre_month_filter(months,'Action',context)
+        # genre_month_filter(months,'Comedy',context)
+        # genre_month_filter(months,'Horror',context)
+        # genre_month_filter(months,'Drama',context)
+
+
+        # ----------------------------------------------
+        # | Total Movies                               |
+        # ----------------------------------------------
+
+        # ----------------------------------------------
+        # | Highest CIM BO USD                         |
+        # ----------------------------------------------
+        CUM_GBO_USD___max=data.objects.aggregate(Max('CUM_GBO_USD'))
+        
+        context.update(
+            {
+            'CUM_GBO_USD___max':CUM_GBO_USD___max,
+            }
+            )
+
+
+
+
+        # ----------------------------------------------
+        # | MOST MOVIES FROM COUNTRY                   |
+        # ----------------------------------------------
+        Country___max=data.objects.aggregate(Max('Country'))
+
+
+        context.update(
+            {
+            'CUM_GBO_USD___max':CUM_GBO_USD___max,
+            'Country___max':Country___max,
+            }
+            )
+
+
+
+        # ----------------------------------------------
+        # | MOVIES PER MONTH                           |
+        # ----------------------------------------------
+
+
+        m=[]
+        movies_months=data.objects.values('RELEASE_DATE')    
+        for i in movies_months:
+            # print(i['RELEASE_DATE'])
+            if i['RELEASE_DATE']:
+                m.append(i['RELEASE_DATE'].strftime('%b'))
+            
+        # m.sort()
+        
+        count = pd.Series(m).value_counts(sort=True,ascending=True)
+        # print(count.to_dict())
+        from collections import OrderedDict
+        od=OrderedDict(sorted(count.to_dict().items(),key =lambda x:months.index(x[0])))
+        # print(od.keys())
+        movies_month_label_release=list(od.keys())
+        # print(movies_month_label_release)
+        movies_month_count_release=list(od.values())
+        # print(movies_month_count_release)
+        context.update({'movies_month_label_release':movies_month_label_release})
+        # print(movies_month_label_release)
+        context.update({'movies_month_count_release':movies_month_count_release})
+
+
+
+        # ----------------------------------------------
+        # | MOVIES/COUNTRY                             |
+        # ----------------------------------------------
+
+        countries=data.objects.values('Country').annotate(Country_count=Count('Country'))  
+        
+        df=pd.DataFrame(countries)
+        print(df)
+        import re
+        for i in df.index:
+            df.loc[i,'Country']=re.sub('[^\w\s_]+','',str(df.loc[i,'Country'])).capitalize().strip().replace('\n','')
+            print(df.loc[i,'Country'])
+            if 'United states' == df.loc[i,'Country'] :
+                df.loc[i,'Country']='USA'
+            if 'United states ' == df.loc[i,'Country']:
+                df.loc[i,'Country']='USA'
+        df.sort_values(by='Country_count',ascending=False,inplace=True,ignore_index=True)
     
-    count = pd.Series(m).value_counts(sort=True,ascending=True)
-    # print(count.to_dict())
-    from collections import OrderedDict
-    od=OrderedDict(sorted(count.to_dict().items(),key =lambda x:months.index(x[0])))
-    # print(od.keys())
-    movies_month_label_release=list(od.keys())
-    # print(movies_month_label_release)
-    movies_month_count_release=list(od.values())
-    # print(movies_month_count_release)
-    context.update({'movies_month_label_release':movies_month_label_release})
-    # print(movies_month_label_release)
-    context.update({'movies_month_count_release':movies_month_count_release})
-    # print(countries)
-
-    # -----------------------
-    # | Movie v/s STREAMER  |
-    # -----------------------
+        print(list(df[:].to_dict()['Country'].values()))
+        context.update({'Country_label':list(df[:].to_dict()['Country'].values())})
+        context.update({'Country_label_count':list(df[:].to_dict()['Country_count'].values())})
 
 
 
-    Movies_streamer=data.objects.values('Streamer')
-    Movies_Netflix=0
-    Movies_Amazone=0
-    Movies_iTunes=0
-    Movies_hulu=0
-    Movies_Disney=0
-    for i in Movies_streamer:
-        # print(i['Streamer'])
-        if 'netflix' in i['Streamer'].lower():
-            Movies_Netflix+=1
-        if 'amazon' in i['Streamer'].lower():
-             Movies_Amazone+=1
+        # ----------------------------------------------
+        # | MOVIES/GENRE                             |
+        # ----------------------------------------------
 
-        if 'itunes' in i['Streamer'].lower():
-             Movies_iTunes+=1
 
-        if 'hulu' in i['Streamer'].lower():
-             Movies_hulu+=1
-        if 'disney' in i['Streamer'].lower():
-             Movies_Disney+=1
-    Most_movies_on=pd.DataFrame([['Netflix','Amazon','iTunes','hulu','Disney'],[Movies_Netflix,
-        Movies_Amazone,
-        Movies_iTunes,
-        Movies_hulu,
-        Movies_Disney]],
-        ).transpose().sort_values(by=1,ascending=False)[:1]
-    # print()
-    context.update({
-        'Movies_Netflix':Movies_Netflix,
-        'Movies_Amazone':Movies_Amazone,
-        'Movies_iTunes':Movies_iTunes,
-        'Movies_hulu':Movies_hulu,
-        'Movies_Disney':Movies_Disney,
-        'Most_movies_on':Most_movies_on.to_dict()[0][1],
+
+        d=data.objects.exclude(Rating__in="nan").values_list('Rating','FILM','CUM_GBO_USD').order_by('-CUM_GBO_USD')
+        cum_bo=data.objects.exclude(FILM__in='-').exclude(Rating__in="nan").values_list('Rating','FILM','CUM_BO').order_by('-CUM_BO')
+        cum_adm=data.objects.exclude(FILM__in='-').exclude(Rating__in="nan").values_list('Rating','FILM','CUM_ADM').order_by('-CUM_ADM')
+        lead_actor1_cum_bo=data.objects.exclude(Lead_Actor_1_Name__in='-').exclude(FILM__in='-').exclude(Rating__in="nan").values_list('Lead_Actor_1_Name','FILM','CUM_BO').order_by('-CUM_BO')
+        lead_actor2_cum_bo=data.objects.exclude(Lead_Actor_2_Name__in='-').exclude(FILM__in='-').exclude(Rating__in="nan").values_list('Lead_Actor_2_Name','FILM','CUM_BO').order_by('-CUM_BO')
+        prod_comp_cum_bo=data.objects.exclude(Production_Company_1__in='-').exclude(FILM__in='-').exclude(Rating__in="nan").values_list('Production_Company_1','FILM','CUM_BO').order_by('-CUM_BO')
+        distrubute_cum_bo=data.objects.exclude(DIST__in='-').exclude(FILM__in='-').exclude(Rating__in="nan").values_list('DIST','FILM','CUM_BO').order_by('-CUM_BO')
+
+        # print(cum_adm)
+        context.update({
+            'cum_bo':cum_bo,
+            'cum_adm':cum_adm,
+            'lead_actor1_cum_bo':lead_actor1_cum_bo,
+            'lead_actor2_cum_bo':lead_actor2_cum_bo,
+            'prod_comp_cum_bo':prod_comp_cum_bo,
+            'distrubute_cum_bo':distrubute_cum_bo,
+
         })
 
+        Movies_rating=data.objects.exclude(FILM__in='-').values_list('Rating','FILM','CUM_GBO_USD').exclude(Rating__in=['','nan','none',None]).order_by('-Rating')
+        Movies_rating_Amazon=data.objects.exclude(FILM__in='-').filter(Streamer__contains='Amazon').values_list('Rating','FILM','Streamer').exclude(Rating__in=['','nan','none',None]).order_by('-Rating')
+        Movies_rating_netflix=data.objects.exclude(FILM__in='-').filter(Streamer__contains='Netflix').values_list('Rating','FILM','Streamer').exclude(Rating__in=['','nan','none',None]).order_by('-Rating')
+        Movies_rating_netflix=data.objects.exclude(FILM__in='-').filter(Streamer__contains='Netflix').values_list('Rating','FILM','Streamer').exclude(Rating__in=['','nan','none',None]).order_by('-Rating')
+        # print(pd.DataFrame(Movies_rating_Amazon))
 
-    # -----------------------
-    # | SERIES v/s STREAMER |
-    # -----------------------
+        Series_rating=series.objects.values_list('Rating','Series_Name','Streamer').order_by('-Rating')
+        prod_companies_num_mov=prod_companies.objects.values_list('Production_Companies','No_of_Movies').order_by('-No_of_Movies')
+        prod_companies_WBO=prod_companies.objects.values_list('Production_Companies','Total_Worldwide_Box_Office').order_by('-Total_Worldwide_Box_Office')
 
-
-    series_streamer=series.objects.values('Streamer')
-    series_Netflix=0
-    series_shahid=0
-    series_viu=0
-    series_Weyyak=0
-    series_OSN=0
-    for i in series_streamer:
-        # print(i['Streamer'])
-        if 'netflix' in i['Streamer'].lower():
-            series_Netflix+=1
-        if 'shahid' in i['Streamer'].lower():
-             series_shahid+=1
-
-        if 'viu' in i['Streamer'].lower():
-             series_viu+=1
-
-        if 'weyyak' in i['Streamer'].lower():
-             series_Weyyak+=1
-        if 'OSN+' in i['Streamer'].lower():
-             series_OSN+=1
-    Most_series_on=pd.DataFrame([['Netflix','shahid','viu','Weyyak','OSN'],[series_Netflix,
-        series_shahid,
-        series_viu,
-        series_Weyyak,
-        series_OSN]],
-        ).transpose().sort_values(by=1,ascending=False)[:1]
-    # print()
-    context.update({
-        'series_Netflix':series_Netflix,
-        'series_shahid':series_shahid,
-        'series_viu':series_viu,
-        'series_Weyyak':series_Weyyak,
-        'series_OSN':series_OSN,
-        'Most_series_on':Most_series_on.to_dict()[0][1],
+        context.update({
+            'Movies_rating_Amazon':Movies_rating_Amazon,
+            'Movies_rating_netflix':Movies_rating_netflix,
+            'Series_rating':Series_rating,
+            'prod_companies_num_mov':prod_companies_num_mov,
+            'prod_companies_WBO':prod_companies_WBO,
+            'series':series.objects.all(),
+            'ksatv':ksa_tv.objects.all(),
         })
 
+        # COLORS- #3358f4 #00d0df
+        
+        # print(countries)
+
+        # -----------------------
+        # | Movie v/s STREAMER  |
+        # -----------------------
 
 
 
-    # -----------------------
-    # | SERIES v/s Genre |
-    # -----------------------
+        Movies_streamer=data.objects.values('Streamer')
+        Movies_Netflix=0
+        Movies_Amazone=0
+        Movies_iTunes=0
+        Movies_hulu=0
+        Movies_Disney=0
+        for i in Movies_streamer:
+            # print(i['Streamer'])
+            if 'netflix' in i['Streamer'].lower():
+                Movies_Netflix+=1
+            if 'amazon' in i['Streamer'].lower():
+                Movies_Amazone+=1
+
+            if 'itunes' in i['Streamer'].lower():
+                Movies_iTunes+=1
+
+            if 'hulu' in i['Streamer'].lower():
+                Movies_hulu+=1
+            if 'disney' in i['Streamer'].lower():
+                Movies_Disney+=1
+        Most_movies_on=pd.DataFrame([['Netflix','Amazon','iTunes','hulu','Disney'],[Movies_Netflix,
+            Movies_Amazone,
+            Movies_iTunes,
+            Movies_hulu,
+            Movies_Disney]],
+            ).transpose().sort_values(by=1,ascending=False)[:1]
+        # print()
+        context.update({
+            'Movies_Netflix':Movies_Netflix,
+            'Movies_Amazone':Movies_Amazone,
+            'Movies_iTunes':Movies_iTunes,
+            'Movies_hulu':Movies_hulu,
+            'Movies_Disney':Movies_Disney,
+            'Most_movies_on':Most_movies_on.to_dict()[0][1],
+            })
 
 
-    series_Genre=series.objects.values('Genre')
-    series_action=0
-    series_drama=0
-    series_thriller=0
-    series_comedy=0
-    series_Supernatural=0
-    for i in series_Genre:
-        # print(i['Streamer'])
-        if 'action' in i['Genre'].lower():
-            series_action+=1
-        if 'drama' in i['Genre'].lower():
-             series_drama+=1
+        
 
-        if 'thriller' in i['Genre'].lower():
-             series_thriller+=1
 
-        if 'comedy' in i['Genre'].lower():
-             series_comedy+=1
-        if 'supernatural' in i['Genre'].lower():
-             series_Supernatural+=1
-    Most_series_on=pd.DataFrame([['Netflix','drama','thriller','comedy','Supernatural'],[series_action,
-        series_drama,
-        series_thriller,
-        series_comedy,
-        series_Supernatural]],
-        ).transpose().sort_values(by=1,ascending=False)[:1]
-    # print()
-    context.update({
-        'series_action':series_action,
-        'series_drama':series_drama,
-        'series_thriller':series_thriller,
-        'series_comedy':series_comedy,
-        'series_Supernatural':series_Supernatural,
-        'Most_genre_on':Most_series_on.to_dict()[0][1],
+
+
+        # -----------------------
+        # | Moives v/s Genre |
+        # -----------------------
+
+
+
+        movie_genre=data.objects.exclude(Genre__in='-').values('Genre').annotate(genre_count=Count('Genre'))  
+
+        sgdf=pd.DataFrame(movie_genre)
+        for i in sgdf.index:
+            sgdf.loc[i,'Genre']=str(sgdf.loc[i,'Genre']).capitalize().strip().replace('\n','')
+            # print(sgdf.loc[i,'Country'])
+        sgdf.sort_values(by='genre_count',ascending=False,inplace=True,ignore_index=True)
+        # print(df)
+        context.update({'movie_genre_label':list(sgdf[:].to_dict()['Genre'].values())})
+        context.update({'movie_genre_label_count':list(sgdf[:].to_dict()['genre_count'].values())})
+        # print(context)
+       
+
+        # -----------------------
+        # | Moives v/s sub_Genre1|
+        # -----------------------
+
+
+    
+        movie_Sub_Genre_1=data.objects.exclude(Sub_Genre_1__in='-').values('Sub_Genre_1').annotate(Sub_Genre_1_count=Count('Sub_Genre_1'))  
+
+        sgdf=pd.DataFrame(movie_Sub_Genre_1)
+        for i in sgdf.index:
+            sgdf.loc[i,'Sub_Genre_1']=str(sgdf.loc[i,'Sub_Genre_1']).capitalize().strip().replace('\n','')
+            # print(sgdf.loc[i,'Country'])
+        sgdf.sort_values(by='Sub_Genre_1_count',ascending=False,inplace=True,ignore_index=True)
+        # print(df)
+        context.update({'movie_Sub_Genre_1_label':list(sgdf[:].to_dict()['Sub_Genre_1'].values())})
+        context.update({'movie_Sub_Genre_1_label_count':list(sgdf[:].to_dict()['Sub_Genre_1_count'].values())})
+        # print(context)
+       
+        # -------------------------
+        # | Moives v/s sub_Genre2 |
+        # -------------------------
+
+
+    
+        movie_Sub_Genre_2=data.objects.exclude(Sub_Genre_2__in='-').values('Sub_Genre_2').annotate(Sub_Genre_2_count=Count('Sub_Genre_2'))  
+
+        sgdf=pd.DataFrame(movie_Sub_Genre_2)
+        for i in sgdf.index:
+            sgdf.loc[i,'Sub_Genre_2']=str(sgdf.loc[i,'Sub_Genre_2']).capitalize().strip().replace('\n','')
+            # print(sgdf.loc[i,'Country'])
+        sgdf.sort_values(by='Sub_Genre_2_count',ascending=False,inplace=True,ignore_index=True)
+        # print(df)
+        context.update({'movie_Sub_Genre_2_label':list(sgdf[:].to_dict()['Sub_Genre_2'].values())})
+        context.update({'movie_Sub_Genre_2_label_count':list(sgdf[:].to_dict()['Sub_Genre_2_count'].values())})
+        # print(context)
+
+
+        context.update(
+            {'data':d,
+            'segment':'index',
+            'Movies_rating':Movies_rating
+            }
+            )
+
+    if file_name=='KSATV':
+        context={'Dash':'KSATV'}
+        # -----------------------
+        # | SERIES v/s STREAMER |
+        # -----------------------
+        series_streamer=series.objects.values('Streamer')
+        series_Netflix=0
+        series_shahid=0
+        series_viu=0
+        series_Weyyak=0
+        series_OSN=0
+        for i in series_streamer:
+            # print(i['Streamer'])
+            if 'netflix' in i['Streamer'].lower():
+                series_Netflix+=1
+            if 'shahid' in i['Streamer'].lower():
+                series_shahid+=1
+
+            if 'viu' in i['Streamer'].lower():
+                series_viu+=1
+
+            if 'weyyak' in i['Streamer'].lower():
+                series_Weyyak+=1
+            if 'OSN+' in i['Streamer'].lower():
+                series_OSN+=1
+        Most_series_on=pd.DataFrame([['Netflix','shahid','viu','Weyyak','OSN'],[series_Netflix,
+            series_shahid,
+            series_viu,
+            series_Weyyak,
+            series_OSN]],
+            ).transpose().sort_values(by=1,ascending=False)[:1]
+        # print()
+        context.update({
+            'series_Netflix':series_Netflix,
+            'series_shahid':series_shahid,
+            'series_viu':series_viu,
+            'series_Weyyak':series_Weyyak,
+            'series_OSN':series_OSN,
+            'Most_series_on':Most_series_on.to_dict()[0][1],
+            })
+
+
+        # ----------------------------
+        # | SERIES v/s Program Types |
+        # ----------------------------
+
+
+        progType=ksa_tv.objects.values('Prog_Type').annotate(Prog_Type_count=Count('Prog_Type'))
+        print(progType)
+        progTypeDF=pd.DataFrame(progType)
+        progTypeDF.sort_values(by='Prog_Type_count',ascending=False,inplace=True,ignore_index=True)
+        # print(progTypeDF.to_dict())
+        print(list(progTypeDF[:].to_dict()['Prog_Type'].values()))
+
+        context.update({'Prog_Type_label':list(progTypeDF[:].to_dict()['Prog_Type'].values())})
+        context.update({'Prog_Type_label_count':list(progTypeDF[:].to_dict()['Prog_Type_count'].values())})
+
+
+        # ----------------------------
+        # | SERIES v/s Program Sub Types |
+        # ----------------------------
+
+
+        progSubType=ksa_tv.objects.values('Prog_Sub_Type').annotate(Prog_Sub_Type_count=Count('Prog_Sub_Type'))
+        print(progSubType)
+        progSubTypeDF=pd.DataFrame(progSubType)
+        progSubTypeDF.sort_values(by='Prog_Sub_Type_count',ascending=False,inplace=True,ignore_index=True)
+        # print(progSubTypeDF.to_dict())
+        print(list(progSubTypeDF[:].to_dict()['Prog_Sub_Type'].values()))
+
+        context.update({'Prog_Sub_Type_label':list(progSubTypeDF[:].to_dict()['Prog_Sub_Type'].values())})
+        context.update({'Prog_Sub_Type_label_count':list(progSubTypeDF[:].to_dict()['Prog_Sub_Type_count'].values())})
+
+
+
+        # -----------------------------
+        # | SERIES v/s Program Domain |
+        # -----------------------------
+
+
+        progDomain=ksa_tv.objects.values('Prog_Domain').annotate(Prog_Domain_count=Count('Prog_Domain'))
+        print(progDomain)
+        progDomainDF=pd.DataFrame(progDomain)
+        progDomainDF.sort_values(by='Prog_Domain_count',ascending=False,inplace=True,ignore_index=True)
+        # print(progDomainDF.to_dict())
+        print(list(progDomainDF[:].to_dict()['Prog_Domain'].values()))
+
+        context.update({'Prog_Domain_label':list(progDomainDF[:].to_dict()['Prog_Domain'].values())})
+        context.update({'Prog_Domain_label_count':list(progDomainDF[:].to_dict()['Prog_Domain_count'].values())})
+
+
+        # -----------------------
+        # | SERIES v/s Genre    |
+        # -----------------------
+
+
+        series_Genre=series.objects.values('Genre')
+        series_action=0
+        series_drama=0
+        series_thriller=0
+        series_comedy=0
+        series_Supernatural=0
+        for i in series_Genre:
+            # print(i['Streamer'])
+            if 'action' in i['Genre'].lower():
+                series_action+=1
+            if 'drama' in i['Genre'].lower():
+                series_drama+=1
+
+            if 'thriller' in i['Genre'].lower():
+                series_thriller+=1
+
+            if 'comedy' in i['Genre'].lower():
+                series_comedy+=1
+            if 'supernatural' in i['Genre'].lower():
+                series_Supernatural+=1
+        Most_series_on=pd.DataFrame([['Netflix','drama','thriller','comedy','Supernatural'],[series_action,
+            series_drama,
+            series_thriller,
+            series_comedy,
+            series_Supernatural]],
+            ).transpose().sort_values(by=1,ascending=False)[:1]
+        # print()
+        context.update({
+            'series_action':series_action,
+            'series_drama':series_drama,
+            'series_thriller':series_thriller,
+            'series_comedy':series_comedy,
+            'series_Supernatural':series_Supernatural,
+            'Most_genre_on':Most_series_on.to_dict()[0][1],
+            })
+        
+
+        # -----------------------
+        # | SERIES v/s AVG_AUD  |
+        # -----------------------
+
+        
+        
+        topProgAud=ksa_tv.objects.exclude(Prog_Name__in='-').values_list('Prog_Name','Avg_Aud_ALL').order_by('-Avg_Aud_ALL')
+        
+        context.update(
+            {'topProgAud':topProgAud}
+        )
+
+    if file_name=='GLOBAL':
+        context={'Dash':'GLOBAL'}
+        main_data=pd.DataFrame(data.objects.values())
+        # print(main_data)
+
+        # ----------------------------------------------
+        # | MOVIES PER MONTH BY GENRE (TOP 5-6 GENRES) |
+        # ----------------------------------------------
+
+        top_6_Genre_list=[]
+        months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] 
+        TOP_GENRES=data.objects.exclude(Genre__in='-').values('Genre').annotate(genre_count=Count('Genre'))
+        TOP_GENRES=pd.DataFrame(TOP_GENRES)
+        top_6_genre=TOP_GENRES.sort_values(by='genre_count',ascending=False)[:6]
+        
+        context.update({'top_6_genre':top_6_genre['Genre']})
+        for i in top_6_genre['Genre']:
+            top_6_Genre_list.append(genre_month_filter(months,str(i).title()))
+
+        context.update({'top_6_Genre_list':top_6_Genre_list})
+        print(context)
+        print('---'*50)
+        # genre_month_filter(months,'Action',context)
+        # genre_month_filter(months,'Comedy',context)
+        # genre_month_filter(months,'Horror',context)
+        # genre_month_filter(months,'Drama',context)
+
+
+        # ----------------------------------------------
+        # | Total Movies                               |
+        # ----------------------------------------------
+
+        # ----------------------------------------------
+        # | Highest CIM BO USD                         |
+        # ----------------------------------------------
+        CUM_GBO_USD___max=data.objects.aggregate(Max('CUM_GBO_USD'))
+        
+        context.update(
+            {
+            'CUM_GBO_USD___max':CUM_GBO_USD___max,
+            }
+            )
+
+
+
+
+        # ----------------------------------------------
+        # | MOST MOVIES FROM COUNTRY                   |
+        # ----------------------------------------------
+        Country___max=data.objects.aggregate(Max('Country'))
+
+
+        context.update(
+            {
+            'CUM_GBO_USD___max':CUM_GBO_USD___max,
+            'Country___max':Country___max,
+            }
+            )
+
+
+
+        # ----------------------------------------------
+        # | MOVIES PER MONTH                           |
+        # ----------------------------------------------
+
+
+        m=[]
+        movies_months=data.objects.values('RELEASE_DATE')    
+        for i in movies_months:
+            # print(i['RELEASE_DATE'])
+            if i['RELEASE_DATE']:
+                m.append(i['RELEASE_DATE'].strftime('%b'))
+            
+        # m.sort()
+        
+        count = pd.Series(m).value_counts(sort=True,ascending=True)
+        # print(count.to_dict())
+        from collections import OrderedDict
+        od=OrderedDict(sorted(count.to_dict().items(),key =lambda x:months.index(x[0])))
+        # print(od.keys())
+        movies_month_label_release=list(od.keys())
+        # print(movies_month_label_release)
+        movies_month_count_release=list(od.values())
+        # print(movies_month_count_release)
+        context.update({'movies_month_label_release':movies_month_label_release})
+        # print(movies_month_label_release)
+        context.update({'movies_month_count_release':movies_month_count_release})
+
+
+
+        # ----------------------------------------------
+        # | MOVIES/COUNTRY                             |
+        # ----------------------------------------------
+
+        Production_Country_1=global_box.objects.values('Production_Country_1').annotate(Country_count=Count('Production_Country_1'))  
+        
+        df=pd.DataFrame(Production_Country_1)
+        print(df)
+        import re
+        for i in df.index:
+            df.loc[i,'Production_Country_1']=re.sub('[^\w\s_]+','',str(df.loc[i,'Production_Country_1'])).capitalize().strip().replace('\n','')
+            print(df.loc[i,'Production_Country_1'])
+            if 'United states' == df.loc[i,'Production_Country_1'] :
+                df.loc[i,'Production_Country_1']='USA'
+            if 'United states ' == df.loc[i,'Production_Country_1']:
+                df.loc[i,'Production_Country_1']='USA'
+        df.sort_values(by='Country_count',ascending=False,inplace=True,ignore_index=True)
+    
+        print(list(df[:].to_dict()['Production_Country_1'].values()))
+        context.update({'Production_Country_1_label':list(df[:].to_dict()['Production_Country_1'].values())})
+        context.update({'Production_Country_1_label_count':list(df[:].to_dict()['Country_count'].values())})
+
+
+
+        # ----------------------------------------------
+        # | MOVIES/GENRE                             |
+        # ----------------------------------------------
+
+
+
+        d=global_box.objects.exclude(Movie__in="-").values_list('Rating','Movie','World_Wide_Box_Office').order_by('-World_Wide_Box_Office')
+        cum_bo=global_box.objects.exclude(Movie__in="-").values_list('Movie','Production_Budget').order_by('-Production_Budget')
+        cum_bol=global_box.objects.exclude(Movie__in="-").values_list('Movie','Production_Budget').order_by('Production_Budget')
+        cum_adm=global_box.objects.exclude(Movie__in="-").values_list('Movie','Other_Costs').order_by('-Other_Costs')
+        cum_admlo=global_box.objects.exclude(Other_Costs__in="0").exclude(Movie__in="-").values_list('Movie','Other_Costs').order_by('Other_Costs')
+        profit=global_box.objects.exclude(Movie__in="-").values_list('Movie','Profit').order_by('-Profit')
+        profitlo=global_box.objects.exclude(Movie__in="-").values_list('Movie','Profit').order_by('Profit')
+        Profitability=global_box.objects.exclude(Movie__in="-").values_list('Movie','Profitability').order_by('-Profitability')
+        Profitabilitylo=global_box.objects.exclude(Movie__in="-").values_list('Movie','Profitability').order_by('Profitability')
+        DBO=global_box.objects.exclude(Movie__in="-").values_list('Movie','Domestic_Box_office').order_by('-Domestic_Box_office')
+        IBO=global_box.objects.exclude(Movie__in="-").values_list('Movie','International_Box_Office').order_by('-International_Box_Office')
+        World_Wide_Box_Office=global_box.objects.exclude(Movie__in="-").values_list('Movie','World_Wide_Box_Office').order_by('-World_Wide_Box_Office')
+        Production_Country_1_World_Wide_Box_Office=global_box.objects.exclude(Production_Country_1__in="-").values_list('Production_Country_1','World_Wide_Box_Office').order_by('-World_Wide_Box_Office')
+        Production_Country_2_World_Wide_Box_Office=global_box.objects.exclude(Production_Country_2__in="-").values_list('Production_Country_2','World_Wide_Box_Office').order_by('-World_Wide_Box_Office')
+        Production_Country_3_World_Wide_Box_Office=global_box.objects.exclude(Production_Country_3__in="-").values_list('Production_Country_3','World_Wide_Box_Office').order_by('-World_Wide_Box_Office')
+        
+        # lead_actor1_cum_bo=global_box.objects.exclude(Lead_Actor_1_Name__in='-').exclude(Movie__in="-").values_list('Lead_Actor_1_Name','FILM','CUM_BO').order_by('-CUM_BO')
+        # lead_actor2_cum_bo=global_box.objects.exclude(Lead_Actor_2_Name__in='-').exclude(Movie__in="-").values_list('Lead_Actor_2_Name','FILM','CUM_BO').order_by('-CUM_BO')
+        # prod_comp_cum_bo=global_box.objects.exclude(Production_Company_1__in='-').exclude(Movie__in="-").values_list('Production_Company_1','FILM','CUM_BO').order_by('-CUM_BO')
+        # distrubute_cum_bo=global_box.objects.exclude(DIST__in='-').exclude(Movie__in="-").values_list('DIST','FILM','CUM_BO').order_by('-CUM_BO')
+
+        # print(cum_adm)
+        context.update({
+            'cum_bo':cum_bo,
+            'cum_bol':cum_bol,
+            'cum_adm':cum_adm,
+            'cum_admlo':cum_admlo,
+            'profit':profit,
+            'profitlo':profitlo,
+            'Profitability':Profitability,
+            'Profitabilitylo':Profitabilitylo,
+            'DBO':DBO,
+
+            'IBO':IBO,
+            'World_Wide_Box_Office':World_Wide_Box_Office,
+            'Production_Country_1_World_Wide_Box_Office':Production_Country_1_World_Wide_Box_Office,
+            'Production_Country_2_World_Wide_Box_Office':Production_Country_2_World_Wide_Box_Office,
+            'Production_Country_3_World_Wide_Box_Office':Production_Country_3_World_Wide_Box_Office,
+
+            # 'lead_actor1_cum_bo':lead_actor1_cum_bo,
+            # 'lead_actor2_cum_bo':lead_actor2_cum_bo,
+            # 'prod_comp_cum_bo':prod_comp_cum_bo,
+            # 'distrubute_cum_bo':distrubute_cum_bo,
+
         })
 
-    df=pd.DataFrame(countries)
-    df.sort_values(by='Country_count',ascending=False,inplace=True,ignore_index=True)
-    # print(df)
-    context.update({'Country_label':list(df[1:].to_dict()['Country'].values())})
-    context.update({'Country_label_count':list(df[1:].to_dict()['Country_count'].values())})
+        Movies_rating=data.objects.exclude(FILM__in='-').values_list('Rating','FILM','CUM_GBO_USD').exclude(Rating__in=['','nan','none',None]).order_by('-Rating')
+        Movies_rating_Amazon=data.objects.exclude(FILM__in='-').filter(Streamer__contains='Amazon').values_list('Rating','FILM','Streamer').exclude(Rating__in=['','nan','none',None]).order_by('-Rating')
+        Movies_rating_netflix=data.objects.exclude(FILM__in='-').filter(Streamer__contains='Netflix').values_list('Rating','FILM','Streamer').exclude(Rating__in=['','nan','none',None]).order_by('-Rating')
+        Movies_rating_netflix=data.objects.exclude(FILM__in='-').filter(Streamer__contains='Netflix').values_list('Rating','FILM','Streamer').exclude(Rating__in=['','nan','none',None]).order_by('-Rating')
+        # print(pd.DataFrame(Movies_rating_Amazon))
+
+        Series_rating=series.objects.values_list('Rating','Series_Name','Streamer').order_by('-Rating')
+        prod_companies_num_mov=prod_companies.objects.values_list('Production_Companies','No_of_Movies').order_by('-No_of_Movies')
+        prod_companies_WBO=prod_companies.objects.values_list('Production_Companies','Total_Worldwide_Box_Office').order_by('-Total_Worldwide_Box_Office')
+
+        context.update({
+            'Movies_rating_Amazon':Movies_rating_Amazon,
+            'Movies_rating_netflix':Movies_rating_netflix,
+            'Series_rating':Series_rating,
+            'prod_companies_num_mov':prod_companies_num_mov,
+            'prod_companies_WBO':prod_companies_WBO,
+            'series':series.objects.all(),
+            'ksatv':ksa_tv.objects.all(),
+        })
+
+        # COLORS- #3358f4 #00d0df
+        
+        # print(countries)
+
+        # -----------------------
+        # | Movie v/s STREAMER  |
+        # -----------------------
 
 
-    sgdf=pd.DataFrame(Series_genre)
-    sgdf.sort_values(by='genre_count',ascending=False,inplace=True,ignore_index=True)
-    # print(df)
-    context.update({'series_genre_label':list(sgdf[1:].to_dict()['Genre'].values())})
-    context.update({'series_genre_label_count':list(sgdf[1:].to_dict()['genre_count'].values())})
-    # print(context)
-    CUM_GBO_USD___max=data.objects.aggregate(Max('CUM_GBO_USD'))
-    Country___max=data.objects.aggregate(Max('Country'))
-    context.update({'data':d,'CUM_GBO_USD___max':CUM_GBO_USD___max,'Country___max':Country___max,'segment':'index','Movies_rating':Movies_rating})
-    return render(request,'home/index.html',context)
+
+        Movies_streamer=data.objects.values('Streamer')
+        Movies_Netflix=0
+        Movies_Amazone=0
+        Movies_iTunes=0
+        Movies_hulu=0
+        Movies_Disney=0
+        for i in Movies_streamer:
+            # print(i['Streamer'])
+            if 'netflix' in i['Streamer'].lower():
+                Movies_Netflix+=1
+            if 'amazon' in i['Streamer'].lower():
+                Movies_Amazone+=1
+
+            if 'itunes' in i['Streamer'].lower():
+                Movies_iTunes+=1
+
+            if 'hulu' in i['Streamer'].lower():
+                Movies_hulu+=1
+            if 'disney' in i['Streamer'].lower():
+                Movies_Disney+=1
+        Most_movies_on=pd.DataFrame([['Netflix','Amazon','iTunes','hulu','Disney'],[Movies_Netflix,
+            Movies_Amazone,
+            Movies_iTunes,
+            Movies_hulu,
+            Movies_Disney]],
+            ).transpose().sort_values(by=1,ascending=False)[:1]
+        # print()
+        context.update({
+            'Movies_Netflix':Movies_Netflix,
+            'Movies_Amazone':Movies_Amazone,
+            'Movies_iTunes':Movies_iTunes,
+            'Movies_hulu':Movies_hulu,
+            'Movies_Disney':Movies_Disney,
+            'Most_movies_on':Most_movies_on.to_dict()[0][1],
+            })
+
+
+        
+
+
+
+
+        # -----------------------
+        # | Moives v/s Genre |
+        # -----------------------
+
+
+
+        movie_genre=global_box.objects.exclude(Genre__in='-').values('Genre').annotate(genre_count=Count('Genre'))  
+
+        sgdf=pd.DataFrame(movie_genre)
+        for i in sgdf.index:
+            sgdf.loc[i,'Genre']=str(sgdf.loc[i,'Genre']).capitalize().strip().replace('\n','')
+            # print(sgdf.loc[i,'Country'])
+        sgdf.sort_values(by='genre_count',ascending=False,inplace=True,ignore_index=True)
+        # print(df)
+        context.update({'movie_genre_label':list(sgdf[:].to_dict()['Genre'].values())})
+        context.update({'movie_genre_label_count':list(sgdf[:].to_dict()['genre_count'].values())})
+        # print(context)
+       
+
+        # -----------------------
+        # | Moives v/s sub_Genre1|
+        # -----------------------
+
+         # ----------------------------------------------
+        # | MOVIES/Year                             |
+        # ----------------------------------------------
+
+        Release_Year_m=global_box.objects.exclude(Release_Year__in='None').exclude(Release_Year__in='-').values('Release_Year').annotate(Country_count=Count('Release_Year'))  
+        print(Release_Year_m)
+        df=pd.DataFrame(Release_Year_m)
+        print(df)
+        import re
+        
+        # df.sort_values(by='Country_count',ascending=False,inplace=True,ignore_index=True)
+    
+        print(list(df[:].to_dict()['Release_Year'].values()))
+        context.update({'Release_Year_label':list(df[:].to_dict()['Release_Year'].values())})
+        context.update({'Release_Year_label_count':list(df[:].to_dict()['Country_count'].values())})
+
+    
+        movie_Sub_Genre_1=global_box.objects.exclude(Sub_Genera_1__in='-').values('Sub_Genera_1').annotate(Sub_Genera_1_count=Count('Sub_Genera_1'))  
+
+        sgdf=pd.DataFrame(movie_Sub_Genre_1)
+        for i in sgdf.index:
+            sgdf.loc[i,'Sub_Genera_1']=str(sgdf.loc[i,'Sub_Genera_1']).capitalize().strip().replace('\n','')
+            # print(sgdf.loc[i,'Country'])
+        sgdf.sort_values(by='Sub_Genera_1_count',ascending=False,inplace=True,ignore_index=True)
+        # print(df)
+        context.update({'movie_Sub_Genre_1_label':list(sgdf[:].to_dict()['Sub_Genera_1'].values())})
+        context.update({'movie_Sub_Genre_1_label_count':list(sgdf[:].to_dict()['Sub_Genera_1_count'].values())})
+        # print(context)
+       
+        # -------------------------
+        # | Moives v/s sub_Genre2 |
+        # -------------------------
+
+
+    
+        movie_Sub_Genera_2=global_box.objects.exclude(Sub_Genera_2__in='-').values('Sub_Genera_2').annotate(Sub_Genera_2_count=Count('Sub_Genera_2'))  
+
+        sgdf=pd.DataFrame(movie_Sub_Genera_2)
+        for i in sgdf.index:
+            sgdf.loc[i,'Sub_Genera_2']=str(sgdf.loc[i,'Sub_Genera_2']).capitalize().strip().replace('\n','')
+            # print(sgdf.loc[i,'Country'])
+        sgdf.sort_values(by='Sub_Genera_2_count',ascending=False,inplace=True,ignore_index=True)
+        # print(df)
+        context.update({'movie_Sub_Genre_2_label':list(sgdf[:].to_dict()['Sub_Genera_2'].values())})
+        context.update({'movie_Sub_Genre_2_label_count':list(sgdf[:].to_dict()['Sub_Genera_2_count'].values())})
+        # print(context)
+
+
+        context.update(
+            {'data':d,
+            'segment':'index',
+            'Movies_rating':Movies_rating
+            }
+            )
+    
+    if file_name=='Prod-House':
+        context={'Dash':'PROD'}
+        main_data=pd.DataFrame(data.objects.values())
+        # print(main_data)
+
+        # ----------------------------------------------
+        # | MOVIES PER MONTH BY GENRE (TOP 5-6 GENRES) |
+        # ----------------------------------------------
+
+
+        months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] 
+        
+
+
+        # ----------------------------------------------
+        # | Total Movies                               |
+        # ----------------------------------------------
+
+        # ----------------------------------------------
+        # | Highest CIM BO USD                         |
+        # ----------------------------------------------
+        CUM_GBO_USD___max=data.objects.aggregate(Max('CUM_GBO_USD'))
+        
+        context.update(
+            {
+            'CUM_GBO_USD___max':CUM_GBO_USD___max,
+            }
+            )
+
+
+
+
+        # ----------------------------------------------
+        # | MOST MOVIES FROM COUNTRY                   |
+        # ----------------------------------------------
+        Country___max=data.objects.aggregate(Max('Country'))
+
+
+        context.update(
+            {
+            'CUM_GBO_USD___max':CUM_GBO_USD___max,
+            'Country___max':Country___max,
+            }
+            )
+
+
+
+        # ----------------------------------------------
+        # | MOVIES PER MONTH                           |
+        # ----------------------------------------------
+
+
+        m=[]
+        movies_months=data.objects.values('RELEASE_DATE')    
+        for i in movies_months:
+            # print(i['RELEASE_DATE'])
+            if i['RELEASE_DATE']:
+                m.append(i['RELEASE_DATE'].strftime('%b'))
+            
+        # m.sort()
+        
+        count = pd.Series(m).value_counts(sort=True,ascending=True)
+        # print(count.to_dict())
+        from collections import OrderedDict
+        od=OrderedDict(sorted(count.to_dict().items(),key =lambda x:months.index(x[0])))
+        # print(od.keys())
+        movies_month_label_release=list(od.keys())
+        # print(movies_month_label_release)
+        movies_month_count_release=list(od.values())
+        # print(movies_month_count_release)
+        context.update({'movies_month_label_release':movies_month_label_release})
+        # print(movies_month_label_release)
+        context.update({'movies_month_count_release':movies_month_count_release})
+
+
+
+        # ----------------------------------------------
+        # | MOVIES/COUNTRY                             |
+        # ----------------------------------------------
+
+        countries=global_box.objects.values('Production_Country_1').annotate(Country_count=Count('Production_Country_1'))  
+        
+        df=pd.DataFrame(countries)
+        print(df)
+        import re
+        for i in df.index:
+            df.loc[i,'Production_Country_1']=re.sub('[^\w\s_]+','',str(df.loc[i,'Production_Country_1'])).capitalize().strip().replace('\n','')
+            print(df.loc[i,'Production_Country_1'])
+            if 'United states' == df.loc[i,'Country'] :
+                df.loc[i,'Production_Country_1']='USA'
+            if 'United states ' == df.loc[i,'Production_Country_1']:
+                df.loc[i,'Production_Country_1']='USA'
+        df.sort_values(by='Country_count',ascending=False,inplace=True,ignore_index=True)
+    
+        print(list(df[:].to_dict()['Production_Country_1'].values()))
+        context.update({'Country_label':list(df[:].to_dict()['Production_Country_1'].values())})
+        context.update({'Country_label_count':list(df[:].to_dict()['Country_count'].values())})
+
+
+
+       
+
+
+        # ----------------------------------------------
+        # | MOVIES/GENRE                             |
+        # ----------------------------------------------
+
+
+
+        d=prod_companies.objects.all()
+        prod_comp_worldBO=prod_companies.objects.exclude(Production_Companies__in='-').values_list('Production_Companies','Total_Worldwide_Box_Office').order_by('-Total_Worldwide_Box_Office')
+        prod_compDomesticBO=prod_companies.objects.exclude(Production_Companies__in='-').values_list('Production_Companies','Total_Domestic_Box_Office').order_by('-Total_Domestic_Box_Office')
+        prod_compBynoOfMovies=prod_companies.objects.exclude(Production_Companies__in='-').values_list('Production_Companies','No_of_Movies').order_by('-No_of_Movies')
+        # lead_actor1_cum_bo=data.objects.exclude(Lead_Actor_1_Name__in='-').exclude(Production_Companies__in='-').values_list('Lead_Actor_1_Name','Production_Companies','CUM_BO').order_by('-CUM_BO')
+        # lead_actor2_cum_bo=data.objects.exclude(Lead_Actor_2_Name__in='-').exclude(FILM__in='-').values_list('Lead_Actor_2_Name','FILM','CUM_BO').order_by('-CUM_BO')
+        # prod_comp_cum_bo=data.objects.exclude(Production_Company_1__in='-').exclude(FILM__in='-').exclude(Rating__in="nan").values_list('Production_Company_1','FILM','CUM_BO').order_by('-CUM_BO')
+        # distrubute_cum_bo=data.objects.exclude(DIST__in='-').exclude(FILM__in='-').exclude(Rating__in="nan").values_list('DIST','FILM','CUM_BO').order_by('-CUM_BO')
+
+        # print(Total_Domestic_Box_Office)
+        context.update({
+            'prod_comp_worldBO':prod_comp_worldBO,
+            'prod_compDomesticBO':prod_compDomesticBO,
+            'prod_compBynoOfMovies':prod_compBynoOfMovies,
+            # 'lead_actor1_cum_bo':lead_actor1_cum_bo,
+            # 'lead_actor2_cum_bo':lead_actor2_cum_bo,
+            # 'prod_comp_cum_bo':prod_comp_cum_bo,
+            # 'distrubute_cum_bo':distrubute_cum_bo,
+
+        })
+
+        Movies_rating=data.objects.exclude(FILM__in='-').values_list('Rating','FILM','CUM_GBO_USD').exclude(Rating__in=['','nan','none',None]).order_by('-Rating')
+        Movies_rating_Amazon=data.objects.exclude(FILM__in='-').filter(Streamer__contains='Amazon').values_list('Rating','FILM','Streamer').exclude(Rating__in=['','nan','none',None]).order_by('-Rating')
+        Movies_rating_netflix=data.objects.exclude(FILM__in='-').filter(Streamer__contains='Netflix').values_list('Rating','FILM','Streamer').exclude(Rating__in=['','nan','none',None]).order_by('-Rating')
+        Movies_rating_netflix=data.objects.exclude(FILM__in='-').filter(Streamer__contains='Netflix').values_list('Rating','FILM','Streamer').exclude(Rating__in=['','nan','none',None]).order_by('-Rating')
+        # print(pd.DataFrame(Movies_rating_Amazon))
+
+        Series_rating=series.objects.values_list('Rating','Series_Name','Streamer').order_by('-Rating')
+        prod_companies_num_mov=prod_companies.objects.values_list('Production_Companies','No_of_Movies').order_by('-No_of_Movies')
+        prod_companies_WBO=prod_companies.objects.values_list('Production_Companies','Total_Worldwide_Box_Office').order_by('-Total_Worldwide_Box_Office')
+
+        context.update({
+            'Movies_rating_Amazon':Movies_rating_Amazon,
+            'Movies_rating_netflix':Movies_rating_netflix,
+            'Series_rating':Series_rating,
+            'prod_companies_num_mov':prod_companies_num_mov,
+            'prod_companies_WBO':prod_companies_WBO,
+            'series':series.objects.all(),
+            'ksatv':ksa_tv.objects.all(),
+        })
+
+        # COLORS- #3358f4 #00d0df
+        
+        # print(countries)
+
+        # -----------------------
+        # | Movie v/s STREAMER  |
+        # -----------------------
+
+
+
+        Movies_streamer=data.objects.values('Streamer')
+        Movies_Netflix=0
+        Movies_Amazone=0
+        Movies_iTunes=0
+        Movies_hulu=0
+        Movies_Disney=0
+        for i in Movies_streamer:
+            # print(i['Streamer'])
+            if 'netflix' in i['Streamer'].lower():
+                Movies_Netflix+=1
+            if 'amazon' in i['Streamer'].lower():
+                Movies_Amazone+=1
+
+            if 'itunes' in i['Streamer'].lower():
+                Movies_iTunes+=1
+
+            if 'hulu' in i['Streamer'].lower():
+                Movies_hulu+=1
+            if 'disney' in i['Streamer'].lower():
+                Movies_Disney+=1
+        Most_movies_on=pd.DataFrame([['Netflix','Amazon','iTunes','hulu','Disney'],[Movies_Netflix,
+            Movies_Amazone,
+            Movies_iTunes,
+            Movies_hulu,
+            Movies_Disney]],
+            ).transpose().sort_values(by=1,ascending=False)[:1]
+        # print()
+        context.update({
+            'Movies_Netflix':Movies_Netflix,
+            'Movies_Amazone':Movies_Amazone,
+            'Movies_iTunes':Movies_iTunes,
+            'Movies_hulu':Movies_hulu,
+            'Movies_Disney':Movies_Disney,
+            'Most_movies_on':Most_movies_on.to_dict()[0][1],
+            })
+
+
+        
+
+
+
+
+        # -----------------------
+        # | Moives v/s Genre |
+        # -----------------------
+
+
+
+        movie_genre=data.objects.exclude(Genre__in='-').values('Genre').annotate(genre_count=Count('Genre'))  
+
+        sgdf=pd.DataFrame(movie_genre)
+        for i in sgdf.index:
+            sgdf.loc[i,'Genre']=str(sgdf.loc[i,'Genre']).capitalize().strip().replace('\n','')
+            # print(sgdf.loc[i,'Country'])
+        sgdf.sort_values(by='genre_count',ascending=False,inplace=True,ignore_index=True)
+        # print(df)
+        context.update({'movie_genre_label':list(sgdf[:].to_dict()['Genre'].values())})
+        context.update({'movie_genre_label_count':list(sgdf[:].to_dict()['genre_count'].values())})
+        # print(context)
+       
+        # -----------------------
+        # | Moives v/s Genre |
+        # -----------------------
+
+
+
+        movie_Production_Company_1=data.objects.exclude(Production_Company_1__in='-').values('Production_Company_1').annotate(Production_Company_1_count=Count('Production_Company_1'))  
+
+        sgdf=pd.DataFrame(movie_Production_Company_1)
+        for i in sgdf.index:
+            sgdf.loc[i,'Production_Company_1']=str(sgdf.loc[i,'Production_Company_1']).capitalize().strip().replace('\n','')
+            # print(sgdf.loc[i,'Country'])
+        sgdf.sort_values(by='Production_Company_1_count',ascending=False,inplace=True,ignore_index=True)
+        # print(df)
+        context.update({'movie_Production_Company_1_label':list(sgdf[:].to_dict()['Production_Company_1'].values())})
+        context.update({'movie_Production_Company_1_label_count':list(sgdf[:].to_dict()['Production_Company_1_count'].values())})
+        # print(context)
+       
+        # -----------------------
+        # | Moives v/s sub_Production_Company_11|
+        # -----------------------
+
+
+    
+        movie_Sub_Genre_1=data.objects.exclude(Sub_Genre_1__in='-').values('Sub_Genre_1').annotate(Sub_Genre_1_count=Count('Sub_Genre_1'))  
+
+        sgdf=pd.DataFrame(movie_Sub_Genre_1)
+        for i in sgdf.index:
+            sgdf.loc[i,'Sub_Genre_1']=str(sgdf.loc[i,'Sub_Genre_1']).capitalize().strip().replace('\n','')
+            # print(sgdf.loc[i,'Country'])
+        sgdf.sort_values(by='Sub_Genre_1_count',ascending=False,inplace=True,ignore_index=True)
+        # print(df)
+        context.update({'movie_Sub_Genre_1_label':list(sgdf[:].to_dict()['Sub_Genre_1'].values())})
+        context.update({'movie_Sub_Genre_1_label_count':list(sgdf[:].to_dict()['Sub_Genre_1_count'].values())})
+        # print(context)
+       
+        # -------------------------
+        # | Moives v/s sub_Genre2 |
+        # -------------------------
+
+
+    
+        movie_Sub_Genre_2=data.objects.exclude(Sub_Genre_2__in='-').values('Sub_Genre_2').annotate(Sub_Genre_2_count=Count('Sub_Genre_2'))  
+
+        sgdf=pd.DataFrame(movie_Sub_Genre_2)
+        for i in sgdf.index:
+            sgdf.loc[i,'Sub_Genre_2']=str(sgdf.loc[i,'Sub_Genre_2']).capitalize().strip().replace('\n','')
+            # print(sgdf.loc[i,'Country'])
+        sgdf.sort_values(by='Sub_Genre_2_count',ascending=False,inplace=True,ignore_index=True)
+        # print(df)
+        context.update({'movie_Sub_Genre_2_label':list(sgdf[:].to_dict()['Sub_Genre_2'].values())})
+        context.update({'movie_Sub_Genre_2_label_count':list(sgdf[:].to_dict()['Sub_Genre_2_count'].values())})
+        # print(context)
+
+
+        context.update(
+            {'data':d,
+            'segment':'index',
+            'Movies_rating':Movies_rating
+            }
+            )
+
+    if file_name=='Netflix-Series':
+        context={'Dash':'NSERIES'}
+        
+    
+    if file_name=='NIG-movies':
+        context={'Dash':'NIG'}
+        
+    if file_name=='OTT':
+        context={'Dash':'OTT'}
+        main_data=pd.DataFrame(series.objects.values())
+        # print(main_data)
+
+        # ----------------------------------------------
+        # | MOVIES PER MONTH BY GENRE (TOP 5-6 GENRES) |
+        # ----------------------------------------------
+
+
+        months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] 
+        
+
+
+        # ----------------------------------------------
+        # | Total Movies                               |
+        # ----------------------------------------------
+
+        # ----------------------------------------------
+        # | Highest CIM BO USD                         |
+        # ----------------------------------------------
+        CUM_GBO_USD___max=data.objects.aggregate(Max('CUM_GBO_USD'))
+        
+        context.update(
+            {
+            'CUM_GBO_USD___max':CUM_GBO_USD___max,
+            }
+            )
+
+
+
+
+        # ----------------------------------------------
+        # | MOST MOVIES FROM COUNTRY                   |
+        # ----------------------------------------------
+        Country___max=data.objects.aggregate(Max('Country'))
+
+
+        context.update(
+            {
+            'CUM_GBO_USD___max':CUM_GBO_USD___max,
+            'Country___max':Country___max,
+            }
+            )
+
+
+
+        # ----------------------------------------------
+        # | MOVIES PER MONTH                           |
+        # ----------------------------------------------
+
+
+        m=[]
+        movies_months=data.objects.values('RELEASE_DATE')    
+        for i in movies_months:
+            # print(i['RELEASE_DATE'])
+            if i['RELEASE_DATE']:
+                m.append(i['RELEASE_DATE'].strftime('%b'))
+            
+        # m.sort()
+        
+        count = pd.Series(m).value_counts(sort=True,ascending=True)
+        # print(count.to_dict())
+        from collections import OrderedDict
+        od=OrderedDict(sorted(count.to_dict().items(),key =lambda x:months.index(x[0])))
+        # print(od.keys())
+        movies_month_label_release=list(od.keys())
+        # print(movies_month_label_release)
+        movies_month_count_release=list(od.values())
+        # print(movies_month_count_release)
+        context.update({'movies_month_label_release':movies_month_label_release})
+        # print(movies_month_label_release)
+        context.update({'movies_month_count_release':movies_month_count_release})
+
+
+
+        # ----------------------------------------------
+        # | MOVIES/COUNTRY                             |
+        # ----------------------------------------------
+
+        countries=series.objects.exclude(Country__in='-').exclude(Country__in='None').values('Country').annotate(Country_count=Count('Country'))  
+        
+        df=pd.DataFrame(countries)
+        print(df)
+        import re
+        for i in df.index:
+            df.loc[i,'Country']=re.sub('[^\w\s_]+','',str(df.loc[i,'Country'])).capitalize().strip().replace('\n','')
+            print(df.loc[i,'Country'])
+            if 'United states' == df.loc[i,'Country'] :
+                df.loc[i,'Country']='USA'
+            if 'United states ' == df.loc[i,'Country']:
+                df.loc[i,'Country']='USA'
+        df.sort_values(by='Country_count',ascending=False,inplace=True,ignore_index=True)
+    
+        print(list(df[:].to_dict()['Country'].values()))
+        context.update({'Country_label':list(df[:].to_dict()['Country'].values())})
+        context.update({'Country_label_count':list(df[:].to_dict()['Country_count'].values())})
+
+
+
+        # ----------------------------------------------
+        # | MOVIES/GENRE                             |
+        # ----------------------------------------------
+
+
+
+        d=series.objects.all()
+        prod_comp_worldBO=series.objects.exclude(Series_Name__in='-').values_list('Rating','Series_Name','Country').order_by('-Rating')
+        prod_compDomesticBO=series.objects.exclude(Series_Name__in='-').exclude(Lead_Actor_1_Name__in='-').values_list('Series_Name','Lead_Actor_1_Name','Lead_Actor_1_Nationality').order_by('-Lead_Actor_1_Nationality')
+        prod_compBynoOfMovies=series.objects.exclude(Series_Name__in='-').exclude(Lead_Actor_2_Name__in='-').values_list('Series_Name','Lead_Actor_2_Name','Lead_Actor_2_Nationality').order_by('-Lead_Actor_2_Nationality')
+        # lead_actor1_cum_bo=data.objects.exclude(Lead2Actor_1_Name__in='-').exclude(Production_Companies__in='-').values_list('Lead_Actor_1_Name','Production_Companies','CUM_BO').order_by('-CUM_BO')
+        # lead_actor2_cum_bo=data.objects.exclude(Lead_Actor_2_Name__in='-').exclude(FILM__in='-').values_list('Lead_Actor_2_Name','FILM','CUM_BO').order_by('-CUM_BO')
+        # prod_comp_cum_bo=data.objects.exclude(Production_Company_1__in='-').exclude(FILM__in='-').exclude(Rating__in="nan").values_list('Production_Company_1','FILM','CUM_BO').order_by('-CUM_BO')
+        # distrubute_cum_bo=data.objects.exclude(DIST__in='-').exclude(FILM__in='-').exclude(Rating__in="nan").values_list('DIST','FILM','CUM_BO').order_by('-CUM_BO')
+
+        # print(Total_Domestic_Box_Office)
+        context.update({
+            'prod_comp_worldBO':prod_comp_worldBO,
+            'prod_compDomesticBO':prod_compDomesticBO,
+            'prod_compBynoOfMovies':prod_compBynoOfMovies,
+            # 'lead_actor1_cum_bo':lead_actor1_cum_bo,
+            # 'lead_actor2_cum_bo':lead_actor2_cum_bo,
+            # 'prod_comp_cum_bo':prod_comp_cum_bo,
+            # 'distrubute_cum_bo':distrubute_cum_bo,
+
+        })
+
+        Movies_rating=data.objects.exclude(FILM__in='-').values_list('Rating','FILM','CUM_GBO_USD').exclude(Rating__in=['','nan','none',None]).order_by('-Rating')
+        Movies_rating_Amazon=data.objects.exclude(FILM__in='-').filter(Streamer__contains='Amazon').values_list('Rating','FILM','Streamer').exclude(Rating__in=['','nan','none',None]).order_by('-Rating')
+        Movies_rating_netflix=data.objects.exclude(FILM__in='-').filter(Streamer__contains='Netflix').values_list('Rating','FILM','Streamer').exclude(Rating__in=['','nan','none',None]).order_by('-Rating')
+        Movies_rating_netflix=data.objects.exclude(FILM__in='-').filter(Streamer__contains='Netflix').values_list('Rating','FILM','Streamer').exclude(Rating__in=['','nan','none',None]).order_by('-Rating')
+        # print(pd.DataFrame(Movies_rating_Amazon))
+
+        Series_rating=series.objects.values_list('Rating','Series_Name','Streamer').order_by('-Rating')
+        prod_companies_num_mov=prod_companies.objects.values_list('Production_Companies','No_of_Movies').order_by('-No_of_Movies')
+        prod_companies_WBO=prod_companies.objects.values_list('Production_Companies','Total_Worldwide_Box_Office').order_by('-Total_Worldwide_Box_Office')
+
+        context.update({
+            'Movies_rating_Amazon':Movies_rating_Amazon,
+            'Movies_rating_netflix':Movies_rating_netflix,
+            'Series_rating':Series_rating,
+            'prod_companies_num_mov':prod_companies_num_mov,
+            'prod_companies_WBO':prod_companies_WBO,
+            'series':series.objects.all(),
+            'ksatv':ksa_tv.objects.all(),
+        })
+
+        # COLORS- #3358f4 #00d0df
+        
+        # print(countries)
+
+        # -----------------------
+        # | Movie v/s STREAMER  |
+        # -----------------------
+
+
+
+        Movies_streamer=data.objects.values('Streamer')
+        Movies_Netflix=0
+        Movies_Amazone=0
+        Movies_iTunes=0
+        Movies_hulu=0
+        Movies_Disney=0
+        for i in Movies_streamer:
+            # print(i['Streamer'])
+            if 'netflix' in i['Streamer'].lower():
+                Movies_Netflix+=1
+            if 'amazon' in i['Streamer'].lower():
+                Movies_Amazone+=1
+
+            if 'itunes' in i['Streamer'].lower():
+                Movies_iTunes+=1
+
+            if 'hulu' in i['Streamer'].lower():
+                Movies_hulu+=1
+            if 'disney' in i['Streamer'].lower():
+                Movies_Disney+=1
+        Most_movies_on=pd.DataFrame([['Netflix','Amazon','iTunes','hulu','Disney'],[Movies_Netflix,
+            Movies_Amazone,
+            Movies_iTunes,
+            Movies_hulu,
+            Movies_Disney]],
+            ).transpose().sort_values(by=1,ascending=False)[:1]
+        # print()
+        context.update({
+            'Movies_Netflix':Movies_Netflix,
+            'Movies_Amazone':Movies_Amazone,
+            'Movies_iTunes':Movies_iTunes,
+            'Movies_hulu':Movies_hulu,
+            'Movies_Disney':Movies_Disney,
+            'Most_movies_on':Most_movies_on.to_dict()[0][1],
+            })
+
+
+        
+
+
+
+
+        # -----------------------
+        # | Moives v/s Genre |
+        # -----------------------
+
+
+
+        movie_genre=series.objects.exclude(Genre__in='-').values('Genre').annotate(genre_count=Count('Genre'))  
+
+        sgdf=pd.DataFrame(movie_genre)
+        for i in sgdf.index:
+            sgdf.loc[i,'Genre']=str(sgdf.loc[i,'Genre']).capitalize().strip().replace('\n','')
+            # print(sgdf.loc[i,'Country'])
+        sgdf.sort_values(by='genre_count',ascending=False,inplace=True,ignore_index=True)
+        # print(df)
+        context.update({'movie_genre_label':list(sgdf[:].to_dict()['Genre'].values())})
+        context.update({'movie_genre_label_count':list(sgdf[:].to_dict()['genre_count'].values())})
+        # print(context)
+       
+        # -----------------------
+        # | Moives v/s Genre |
+        # -----------------------
+
+
+
+        movie_Production_Company_1=data.objects.exclude(Production_Company_1__in='-').values('Production_Company_1').annotate(Production_Company_1_count=Count('Production_Company_1'))  
+
+        sgdf=pd.DataFrame(movie_Production_Company_1)
+        for i in sgdf.index:
+            sgdf.loc[i,'Production_Company_1']=str(sgdf.loc[i,'Production_Company_1']).capitalize().strip().replace('\n','')
+            # print(sgdf.loc[i,'Country'])
+        sgdf.sort_values(by='Production_Company_1_count',ascending=False,inplace=True,ignore_index=True)
+        # print(df)
+        context.update({'movie_Production_Company_1_label':list(sgdf[:].to_dict()['Production_Company_1'].values())})
+        context.update({'movie_Production_Company_1_label_count':list(sgdf[:].to_dict()['Production_Company_1_count'].values())})
+        # print(context)
+       
+        # -------------------------------------
+        # | Moives v/s subGenre_1|
+        # --------------------------------------
+
+
+    
+        movie_Sub_Genre_1=series.objects.exclude(Sub_Genre_1__in='-').values('Sub_Genre_1').annotate(Sub_Genre_1_count=Count('Sub_Genre_1'))  
+
+        sgdf=pd.DataFrame(movie_Sub_Genre_1)
+        for i in sgdf.index:
+            sgdf.loc[i,'Sub_Genre_1']=str(sgdf.loc[i,'Sub_Genre_1']).capitalize().strip().replace('\n','')
+            # print(sgdf.loc[i,'Country'])
+        sgdf.sort_values(by='Sub_Genre_1_count',ascending=False,inplace=True,ignore_index=True)
+        # print(df)
+        context.update({'movie_Sub_Genre_1_label':list(sgdf[:].to_dict()['Sub_Genre_1'].values())})
+        context.update({'movie_Sub_Genre_1_label_count':list(sgdf[:].to_dict()['Sub_Genre_1_count'].values())})
+        # print(context)
+       
+        # -------------------------
+        # | Moives v/s sub_Genre2 |
+        # -------------------------
+
+
+    
+        movie_Sub_Genre_2=series.objects.exclude(Sub_Genre_2__in='-').values('Sub_Genre_2').annotate(Sub_Genre_2_count=Count('Sub_Genre_2'))  
+
+        sgdf=pd.DataFrame(movie_Sub_Genre_2)
+        for i in sgdf.index:
+            sgdf.loc[i,'Sub_Genre_2']=str(sgdf.loc[i,'Sub_Genre_2']).capitalize().strip().replace('\n','')
+            # print(sgdf.loc[i,'Country'])
+        sgdf.sort_values(by='Sub_Genre_2_count',ascending=False,inplace=True,ignore_index=True)
+        # print(df)
+        context.update({'movie_Sub_Genre_2_label':list(sgdf[:].to_dict()['Sub_Genre_2'].values())})
+        context.update({'movie_Sub_Genre_2_label_count':list(sgdf[:].to_dict()['Sub_Genre_2_count'].values())})
+        # print(context)
+
+
+        context.update(
+            {'data':d,
+            'segment':'index',
+            'Movies_rating':Movies_rating
+            }
+            )
+
+    return render(request,
+    'home/index.html',context)
 
 
 @login_required(login_url="/login/")
 def tables(request,table_name):
     if 'data'==table_name:
+
         temp_name='home/ui-tables.html'
         model=data
         filter_name=MovieFilter
@@ -364,6 +1461,16 @@ def ALLSEARCH(request):
     'MovieFilter':filter_s
     }
     )
+
+@login_required(login_url="/login/")
+def dashboard_with_pivot(request):
+    return render(request, 'home/ana.html', {})
+
+@login_required(login_url="/login/")
+def pivot_data(request):
+    dataset = data.objects.all()
+    dataa = serializers.serialize('json', dataset)
+    return JsonResponse(dataa, safe=False)
 
 @login_required(login_url="/login/")
 def delete_row(request,model_name,id):
