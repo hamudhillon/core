@@ -13,33 +13,13 @@
     color: black;
   }
 </style>
-{% endblock stylesheets %} {% block content %} {% load humanize %} {% comment %}
-{% endcomment %} {% comment %} Filters {% endcomment %}
+{% endblock stylesheets %} {% block content %} {% load humanize %}
+<br />
+
 <div class="row">
   <div class="col-lg- col-md-12">
-    <a class="btn btn-primary" type="button" href="/tables/data">KSA</a>
+    {% include 'home/filter_bar.html' %}
 
-    <a class="btn btn-primary" type="button" href="/tables/ksatv">KSA TV</a>
-
-    <a class="btn btn-primary" type="button" href="/tables/series">Series</a>
-
-    <a class="btn btn-primary" type="button" href="/tables/global">
-      Global Box Office
-    </a>
-    <a class="btn btn-primary" type="button" href="/tables/prod_companies">
-      Production Companies
-    </a>
-
-    <button
-      class="btn btn-primary"
-      type="button"
-      data-toggle="collapse"
-      data-target="#collapseExample"
-      aria-expanded="false"
-      aria-controls="collapseExample"
-    >
-      Filters
-    </button>
     <div class="collapse card" id="collapseExample">
       <div class="card-body">
         <div class="row">
@@ -64,12 +44,128 @@
             </div>
           </div>
         </form>
+
+        <div class="row">
+          <span class="col-2 display-4">CUM ADM</span>
+          <div class="col-10">
+            <a class="btn btn-primary" href="/RangeFilters/ksa/CUM_ADM/0-20000"
+              >0-20k</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/ksa/CUM_ADM/20000-60000"
+              >20k-60k</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/ksa/CUM_ADM/60000-100000"
+              >60k-100k</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/ksa/CUM_ADM/100000-150000"
+              >100k-150k</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/ksa/CUM_ADM/150000-200000"
+              >150k-200k</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/ksa/CUM_ADM/200000-300000"
+              >200k-300k</a
+            >
+
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/ksa/CUM_ADM/300000-400000"
+              >300k-400k</a
+            >
+
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/ksa/CUM_ADM/400000-500000"
+              >400k-500k</a
+            >
+            <a class="btn btn-primary" href="/RangeFilters/ksa/CUM_ADM/500000-"
+              >500k+</a
+            >
+          </div>
+        </div>
+
+        <div class="row">
+          <span class="col-2 display-4">CUM GBO USD</span>
+          <div class="col-10">
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/ksa/CUM_GBO_USD/0-200000"
+              >0-200k</a
+            >
+
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/ksa/CUM_GBO_USD/200000-500000"
+              >200k-500k</a
+            >
+
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/ksa/CUM_GBO_USD/500000-800000"
+              >500k-800k</a
+            >
+
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/ksa/CUM_GBO_USD/800000-1000000"
+              >800k-1m</a
+            >
+
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/ksa/CUM_GBO_USD/1000000-1500000"
+              >1m-1.5m</a
+            >
+
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/ksa/CUM_GBO_USD/1500000-2000000"
+              >1.5m-2m</a
+            >
+
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/ksa/CUM_GBO_USD/2000000-4000000"
+              >2m-4m</a
+            >
+
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/ksa/CUM_GBO_USD/4000000-6000000"
+              >4m-6m</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/ksa/CUM_GBO_USD/6000000-10000000"
+              >6m-10m</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/ksa/CUM_GBO_USD/10000000-15000000"
+              >10m-15m</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/ksa/CUM_GBO_USD/15000000-"
+              >15m+</a
+            >
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-{% comment %} KSA {% endcomment %}
 <div class="row">
   <div class="col-lg- col-md-12">
     <div class="card">

@@ -17,6 +17,7 @@ path('Dash/<str:file_name>', views.index, name='home'),
  path('ALLSEARCH', views.ALLSEARCH, name='ALLSEARCH'),
  path('delete/<str:model_name>/<int:id>', views.delete_row, name='delete'),
  path('filter/<str:model_name>/<str:f>/<str:order>', views.filter, name='filter'),
+ path('RangeFilters/<str:model_name>/<str:f>/<str:qrange>', views.RangeFilterss, name='RangeFilters'),
     # Matches any html file
     re_path(r'^.*\.*', views.pages, name='pages'),
    

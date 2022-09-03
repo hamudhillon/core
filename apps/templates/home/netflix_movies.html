@@ -47,42 +47,37 @@
         </form>
 
         <div class="row">
-          <span class="col-2 display-4">Avg Aud ALL</span>
+          <span class="col-2 display-3"> Points</span>
           <div class="col-10">
             <a
               class="btn btn-primary"
-              href="/RangeFilters/ksatv/Avg_Aud_ALL/0-2"
-              >0-2</a
+              href="/RangeFilters/netflix_movies/Points/0-10"
+              >0-10</a
             >
             <a
               class="btn btn-primary"
-              href="/RangeFilters/ksatv/Avg_Aud_ALL/2-4"
-              >2-4</a
+              href="/RangeFilters/netflix_movies/Points/10-20"
+              >10-20</a
             >
             <a
               class="btn btn-primary"
-              href="/RangeFilters/ksatv/Avg_Aud_ALL/4-6"
-              >4-6</a
+              href="/RangeFilters/netflix_movies/Points/20-30"
+              >20-30</a
             >
             <a
               class="btn btn-primary"
-              href="/RangeFilters/ksatv/Avg_Aud_ALL/6-8"
-              >6-8</a
+              href="/RangeFilters/netflix_movies/Points/30-40"
+              >30-40</a
             >
             <a
               class="btn btn-primary"
-              href="/RangeFilters/ksatv/Avg_Aud_ALL/8-10"
-              >8-10</a
+              href="/RangeFilters/netflix_movies/Points/40-50"
+              >40-50</a
             >
             <a
               class="btn btn-primary"
-              href="/RangeFilters/ksatv/Avg_Aud_ALL/10-12"
-              >10-12</a
-            >
-            <a
-              class="btn btn-primary"
-              href="/RangeFilters/ksatv/Avg_Aud_ALL/12-"
-              >12+</a
+              href="/RangeFilters/netflix_movies/Points/50-"
+              >50</a
             >
           </div>
         </div>
@@ -99,11 +94,11 @@
           class="card-title"
           type="button"
           data-toggle="collapse"
-          data-target="#ksa_tv"
+          data-target="#prod_c"
           aria-expanded="false"
-          aria-controls="ksa_tv"
+          aria-controls="prod_c"
         >
-          KSA TV
+          Production companies
         </h4>
         <div class="dropdown">
           <button
@@ -137,10 +132,10 @@
                 >
                   <span class="textside p-2"> {{f}} </span>
                   <span class="iconside">
-                    <a href="/filter/ksatv/{{f}}/asc"
+                    <a href="/filter/netflix_movies/{{f}}/asc"
                       ><i class="fa fa-sort-up"></i
                     ></a>
-                    <a href="/filter/ksatv/{{f}}/dsc"
+                    <a href="/filter/netflix_movies/{{f}}/dsc"
                       ><i class="fa fa-sort-down"></i
                     ></a>
                   </span>
@@ -154,27 +149,49 @@
             {% endif %} {% endfor %} {% for i in data %}
             <tr>
               <td class="text-nowrap">
-                <a class="text-danger" href="/delete/ksatv/{{i.Rank}}">
+                <a class="text-danger" href="/delete/netflix_movies/{{i.Rank}}">
                   <i class="fa fa-trash"> </i
                 ></a>
               </td>
-              <td class="text-nowrap">{{i.Count_Order}}</td>
-              <td class="text-nowrap">{{i.Prog_Name}}</td>
-              <td class="text-nowrap">{{i.Station}}</td>
-              <td class="text-nowrap">{{i.Dow}}</td>
-              <td class="text-nowrap">{{i.Month_Year | date}}</td>
-              <td class="text-nowrap">{{i.Prog_Sub_Type}}</td>
-              <td class="text-nowrap">{{i.Prog_Type }}</td>
-              <td class="text-nowrap">{{i.Prog_Domain}}</td>
-              <td class="text-nowrap">{{i.first_Actor }}</td>
-              <td class="text-nowrap">{{i.second_Actor}}</td>
-              <td class="text-nowrap">
-                {{i.Prog_Producer | truncatechars:100}}
-              </td>
-              <td class="text-nowrap">{{i.Prog_Distributor}}</td>
-              <td class="text-nowrap">{{i.Survey_From}}</td>
-              <td class="text-nowrap">{{i.Survey_To}}</td>
-              <td class="text-nowrap">{{i.Avg_Aud_ALL}}</td>
+              <td class="text-nowrap">{{i.Year|floatformat:0}}</td>
+              <td class="text-nowrap">{{i.Week|floatformat:0}}</td>
+              <td class="text-nowrap">{{i.Name}}</td>
+              <td class="text-nowrap">{{i.Points|floatformat:0}}</td>
+              <td class="text-nowrap">{{i.Rank|floatformat:0}}</td>
+              <td class="text-nowrap">{{i.Genre}}</td>
+              <td class="text-nowrap">{{i.Sub_Genre_1}}</td>
+              <td class="text-nowrap">{{i.Sub_Genre_2}}</td>
+              <td class="text-nowrap">{{i.Rating}}</td>
+              <td class="text-nowrap">{{i.Year_of_Release|floatformat:0}}</td>
+              <td class="text-nowrap">{{i.Country}}</td>
+              <td class="text-nowrap">{{i.Run_Time}}</td>
+              <td class="text-nowrap">{{i.Franchise}}</td>
+              <td class="text-nowrap">{{i.Synopsis}}</td>
+              <td class="text-nowrap">{{i.Keywords_1}}</td>
+              <td class="text-nowrap">{{i.Keywords_2}}</td>
+              <td class="text-nowrap">{{i.Keywords_3}}</td>
+              <td class="text-nowrap">{{i.Keywords_4}}</td>
+              <td class="text-nowrap">{{i.Production_Method}}</td>
+              <td class="text-nowrap">{{i.Creative_Type}}</td>
+              <td class="text-nowrap">{{i.Production_Companies}}</td>
+              <td class="text-nowrap">{{i.Production_Company_1}}</td>
+              <td class="text-nowrap">{{i.Production_Company_2}}</td>
+              <td class="text-nowrap">{{i.Production_Company_3}}</td>
+              <td class="text-nowrap">{{i.Production_Company_4}}</td>
+              <td class="text-nowrap">{{i.Directed_by}}</td>
+              <td class="text-nowrap">{{i.Lead_Actor_1_Name}}</td>
+              <td class="text-nowrap">{{i.Lead_Actor_1_Gender}}</td>
+              <td class="text-nowrap">{{i.Lead_Actor_1_Age}}</td>
+              <td class="text-nowrap">{{i.Lead_Actor_1_Nationality}}</td>
+              <td class="text-nowrap">{{i.Lead_Actor_2_Name}}</td>
+              <td class="text-nowrap">{{i.Lead_Actor_2_Gender}}</td>
+              <td class="text-nowrap">{{i.Lead_Actor_2_Age}}</td>
+              <td class="text-nowrap">{{i.Lead_Actor_2_Nationality}}</td>
+              <td class="text-nowrap">{{i.Target_Audience}}</td>
+              <td class="text-nowrap">{{i.Streamer}}</td>
+              <td class="text-nowrap">{{i.Awards_1}}</td>
+              <td class="text-nowrap">{{i.Awards_2}}</td>
+              <td class="text-nowrap">{{i.Awards_3}}</td>
             </tr>
             {% endfor %}
           </table>
@@ -183,7 +200,6 @@
     </div>
   </div>
 </div>
-
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->

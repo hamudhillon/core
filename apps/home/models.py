@@ -161,3 +161,101 @@ class series(models.Model):
     Awards_2=models.CharField(null=True,max_length=5000)
     Awards_3 =models.CharField(null=True,max_length=5000)
     Type_of_deal=models.CharField(null=True,max_length=5000)
+
+
+class netflix_series(models.Model):
+   
+    Year=models.CharField(max_length=5000,null=True)
+    Week=models.CharField(max_length=5000,null=True)
+    Name =models.CharField(max_length=5000,unique=True)
+    Points =models.IntegerField(null=True)
+    Rank=models.CharField(max_length=5000,null=True)
+    Genre =models.CharField(max_length=5000,null=True)
+    Sub_Genre_1=models.CharField(max_length=5000,null=True)
+    Sub_Genre_2=models.CharField(max_length=5000,null=True)
+    Rating=models.CharField(max_length=5000,null=True)
+    Year_of_Release =models.CharField(max_length=5000,null=True)
+    Country =models.CharField(max_length=5000,null=True)
+    of_Seasons=models.CharField(max_length=5000,null=True)
+    of_episodes_Season=models.CharField(max_length=5000,null=True)
+    Length_of_Episode=models.CharField(max_length=5000,null=True)
+    Synopsis =models.CharField(max_length=5000,null=True)
+    Keywords_1=models.CharField(max_length=5000,null=True)
+    Keywords_2=models.CharField(max_length=5000,null=True)
+    Keywords_3=models.CharField(max_length=5000,null=True)
+    Keywords_4=models.CharField(max_length=5000,null=True)
+    Production_Method =models.CharField(max_length=5000,null=True)
+    Creative_Type =models.CharField(max_length=5000,null=True)
+    Production_Companies=models.CharField(max_length=5000,null=True)
+    Production_Company_1=models.CharField(max_length=5000,null=True)
+    Production_Company_2=models.CharField(max_length=5000,null=True)
+    Production_Company_3=models.CharField(max_length=5000,null=True)
+    Production_Company_4=models.CharField(max_length=5000,null=True)
+    Directed_by=models.CharField(max_length=5000,null=True)
+    Lead_Actor_1_Name =models.CharField(max_length=5000,null=True)
+    Lead_Actor_1_Gender=models.CharField(max_length=5000,null=True)
+    Lead_Actor_1_Age =models.CharField(max_length=5000,null=True)
+    Lead_Actor_1_Nationality=models.CharField(max_length=5000,null=True)
+    Lead_Actor_2_Name =models.CharField(max_length=5000,null=True)
+    Lead_Actor_2_Gender=models.CharField(max_length=5000,null=True)
+    Lead_Actor_2_Age =models.CharField(max_length=5000,null=True)
+    Lead_Actor_2_Nationality=models.CharField(max_length=5000,null=True)
+    Target_Audience =models.CharField(max_length=5000,null=True)
+    Streamer=models.CharField(max_length=5000,null=True)
+    Awards_1=models.CharField(max_length=5000,null=True)
+    Awards_2 =models.CharField(max_length=5000,null=True)
+    Awards_3 =models.CharField(max_length=5000,null=True)
+
+
+    def __str__(self):
+        return self.Name
+
+
+
+
+class netflix_Movies(models.Model):
+   
+    Year=models.CharField(max_length=5000,null=True)
+    Week=models.CharField(max_length=5000,null=True)
+    Name =models.CharField(max_length=5000,unique=True)
+    Points =models.IntegerField(null=True)
+    Rank=models.CharField(max_length=5000,null=True)
+    Genre =models.CharField(max_length=5000,null=True)
+    Sub_Genre_1=models.CharField(max_length=5000,null=True)
+    Sub_Genre_2=models.CharField(max_length=5000,null=True)
+    Rating=models.CharField(max_length=5000,null=True)
+    Year_of_Release =models.CharField(max_length=5000,null=True)
+    Country =models.CharField(max_length=5000,null=True)
+    Run_Time=models.CharField(max_length=5000,null=True)
+    Franchise=models.CharField(max_length=5000,null=True)
+    Synopsis =models.CharField(max_length=5000,null=True)
+    Keywords_1=models.CharField(max_length=5000,null=True)
+    Keywords_2=models.CharField(max_length=5000,null=True)
+    Keywords_3=models.CharField(max_length=5000,null=True)
+    Keywords_4=models.CharField(max_length=5000,null=True)
+    Production_Method =models.CharField(max_length=5000,null=True)
+    Creative_Type =models.CharField(max_length=5000,null=True)
+    Production_Companies=models.CharField(max_length=5000,null=True)
+    Production_Company_1=models.CharField(max_length=5000,null=True)
+    Production_Company_2=models.CharField(max_length=5000,null=True)
+    Production_Company_3=models.CharField(max_length=5000,null=True)
+    Production_Company_4=models.CharField(max_length=5000,null=True)
+    Directed_by=models.CharField(max_length=5000,null=True)
+    Lead_Actor_1_Name =models.CharField(max_length=5000,null=True)
+    Lead_Actor_1_Gender=models.CharField(max_length=5000,null=True)
+    Lead_Actor_1_Age =models.CharField(max_length=5000,null=True)
+    Lead_Actor_1_Nationality=models.CharField(max_length=5000,null=True)
+    Lead_Actor_2_Name =models.CharField(max_length=5000,null=True)
+    Lead_Actor_2_Gender=models.CharField(max_length=5000,null=True)
+    Lead_Actor_2_Age =models.CharField(max_length=5000,null=True)
+    Lead_Actor_2_Nationality=models.CharField(max_length=5000,null=True)
+    Target_Audience =models.CharField(max_length=5000,null=True)
+    Streamer=models.CharField(max_length=5000,null=True)
+    Awards_1=models.CharField(max_length=5000,null=True)
+    Awards_2 =models.CharField(max_length=5000,null=True)
+    Awards_3 =models.CharField(max_length=5000,null=True)
+    
+
+
+    def __str__(self):
+        return self.Name

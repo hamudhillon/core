@@ -13,32 +13,14 @@
     color: black;
   }
 </style>
-{% endblock stylesheets %} {% block content %} {% load humanize %} {% comment %}
-{% endcomment %} {% comment %} Filters {% endcomment %}
+{% endblock stylesheets %} {% block content %} {% load humanize %}
+
+<br />
+
 <div class="row">
   <div class="col-lg- col-md-12">
-    <a class="btn btn-primary" type="button" href="/tables/data">KSA</a>
+    {% include 'home/filter_bar.html' %}
 
-    <a class="btn btn-primary" type="button" href="/tables/ksatv">KSA TV</a>
-
-    <a class="btn btn-primary" type="button" href="/tables/series">Series</a>
-
-    <a class="btn btn-primary" type="button" href="/tables/global">
-      Global Box Office
-    </a>
-    <a class="btn btn-primary" type="button" href="/tables/prod_companies">
-      Production Companies
-    </a>
-    <button
-      class="btn btn-primary"
-      type="button"
-      data-toggle="collapse"
-      data-target="#collapseExample"
-      aria-expanded="false"
-      aria-controls="collapseExample"
-    >
-      Filters
-    </button>
     <div class="collapse card" id="collapseExample">
       <div class="card-body">
         <div class="row">
@@ -67,8 +49,6 @@
     </div>
   </div>
 </div>
-
-{% comment %} Series {% endcomment %}
 
 <div class="row">
   <div class="col-lg- col-md-12">

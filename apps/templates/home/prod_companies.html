@@ -13,32 +13,13 @@
     color: black;
   }
 </style>
-{% endblock stylesheets %} {% block content %} {% load humanize %} {% comment %}
-{% endcomment %} {% comment %} Filters {% endcomment %}
+{% endblock stylesheets %} {% block content %} {% load humanize %}
+<br />
+
 <div class="row">
   <div class="col-lg- col-md-12">
-    <a class="btn btn-primary" type="button" href="/tables/data">KSA</a>
+    {% include 'home/filter_bar.html' %}
 
-    <a class="btn btn-primary" type="button" href="/tables/ksatv">KSA TV</a>
-
-    <a class="btn btn-primary" type="button" href="/tables/series">Series</a>
-
-    <a class="btn btn-primary" type="button" href="/tables/global">
-      Global Box Office
-    </a>
-    <a class="btn btn-primary" type="button" href="/tables/prod_companies">
-      Production Companies
-    </a>
-    <button
-      class="btn btn-primary"
-      type="button"
-      data-toggle="collapse"
-      data-target="#collapseExample"
-      aria-expanded="false"
-      aria-controls="collapseExample"
-    >
-      Filters
-    </button>
     <div class="collapse card" id="collapseExample">
       <div class="card-body">
         <div class="row">
@@ -63,12 +44,158 @@
             </div>
           </div>
         </form>
+
+        <div class="row">
+          <span class="col-2 display-4"> No of Movies</span>
+          <div class="col-10">
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/prod_companies/No_of_Movies/0-10"
+              >0-10</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/prod_companies/No_of_Movies/10-25"
+              >10-25</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/prod_companies/No_of_Movies/25-50"
+              >25-50</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/prod_companies/No_of_Movies/50-80"
+              >50-80</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/prod_companies/No_of_Movies/80-120"
+              >80-120</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/prod_companies/No_of_Movies/120-170"
+              >120-170</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/prod_companies/No_of_Movies/170-250"
+              >170-250</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/prod_companies/No_of_Movies/250-"
+              >250+</a
+            >
+          </div>
+        </div>
+
+        <div class="row">
+          <span class="col-2 display-4"> Total Domestic BO</span>
+          <div class="col-10">
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/prod_companies/Total_Domestic_Box_Office/0-10000000"
+              >0-10</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/prod_companies/Total_Domestic_Box_Office/10000000-30000000"
+              >10-30</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/prod_companies/Total_Domestic_Box_Office/30000000-50000000"
+              >30-50</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/prod_companies/Total_Domestic_Box_Office/50000000-75000000"
+              >50-75</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/prod_companies/Total_Domestic_Box_Office/75000000-100000000"
+              >75-100</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/prod_companies/Total_Domestic_Box_Office/100000000-200000000"
+              >100-200</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/prod_companies/Total_Domestic_Box_Office/200000000-400000000"
+              >200-400</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/prod_companies/Total_Domestic_Box_Office/400000000-700000000"
+              >400-700</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/prod_companies/Total_Domestic_Box_Office/700000000-"
+              >700+</a
+            >
+          </div>
+        </div>
+
+        <div class="row">
+          <span class="col-2 display-4">Total Worldwide BO</span>
+          <div class="col-10">
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/prod_companies/Total_Worldwide_Box_Office/0-10000000"
+              >0-10</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/prod_companies/Total_Worldwide_Box_Office/10000000-30000000"
+              >10-30</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/prod_companies/Total_Worldwide_Box_Office/30000000-50000000"
+              >30-50</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/prod_companies/Total_Worldwide_Box_Office/50000000-75000000"
+              >50-75</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/prod_companies/Total_Worldwide_Box_Office/75000000-100000000"
+              >75-100</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/prod_companies/Total_Worldwide_Box_Office/100000000-200000000"
+              >100-200</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/prod_companies/Total_Worldwide_Box_Office/200000000-400000000"
+              >200-400</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/prod_companies/Total_Worldwide_Box_Office/400000000-700000000"
+              >400-700</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/prod_companies/Total_Worldwide_Box_Office/700000000-"
+              >700+</a
+            >
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
-
-{% comment %} prod_companies {% endcomment %}
 
 <div class="row">
   <div class="col-lg- col-md-12">

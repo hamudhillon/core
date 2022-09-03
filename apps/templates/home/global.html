@@ -13,32 +13,13 @@
     color: black;
   }
 </style>
-{% endblock stylesheets %} {% block content %} {% load humanize %} {% comment %}
-{% endcomment %} {% comment %} Filters {% endcomment %}
+{% endblock stylesheets %} {% block content %} {% load humanize %}
+<br />
+
 <div class="row">
   <div class="col-lg- col-md-12">
-    <a class="btn btn-primary" type="button" href="/tables/data">KSA</a>
+    {% include 'home/filter_bar.html' %}
 
-    <a class="btn btn-primary" type="button" href="/tables/ksatv">KSA TV</a>
-
-    <a class="btn btn-primary" type="button" href="/tables/series">Series</a>
-
-    <a class="btn btn-primary" type="button" href="/tables/global">
-      Global Box Office
-    </a>
-    <a class="btn btn-primary" type="button" href="/tables/prod_companies">
-      Production Companies
-    </a>
-    <button
-      class="btn btn-primary"
-      type="button"
-      data-toggle="collapse"
-      data-target="#collapseExample"
-      aria-expanded="false"
-      aria-controls="collapseExample"
-    >
-      Filters
-    </button>
     <div class="collapse card" id="collapseExample">
       <div class="card-body">
         <div class="row">
@@ -63,12 +44,296 @@
             </div>
           </div>
         </form>
+
+        <div class="row">
+          <span class="col-2 display-4">Profitability</span>
+          <div class="col-10">
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/Profitability/0-10"
+              >0-10</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/Profitability/10-25"
+              >10-25</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/Profitability/25-50"
+              >25-50</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/Profitability/50-80"
+              >50-80</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/Profitability/80-100"
+              >80-100</a
+            >
+          </div>
+        </div>
+
+        <div class="row">
+          <span class="col-2 display-4"> Production_Budget</span>
+          <div class="col-10">
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/Production_Budget/0-10000000"
+              >0-10</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/Production_Budget/10000000-30000000"
+              >10-30</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/Production_Budget/30000000-50000000"
+              >30-50</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/Production_Budget/50000000-75000000"
+              >50-75</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/Production_Budget/75000000-100000000"
+              >75-100</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/Production_Budget/100000000-200000000"
+              >100-200</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/Production_Budget/200000000-400000000"
+              >200-400</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/Production_Budget/400000000-700000000"
+              >400-700</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/Production_Budget/700000000-"
+              >700+</a
+            >
+          </div>
+        </div>
+
+        <div class="row">
+          <span class="col-2 display-4">Other Costs</span>
+          <div class="col-10">
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/Other_Costs/0-10000000"
+              >0-10</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/Other_Costs/10000000-30000000"
+              >10-30</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/Other_Costs/30000000-50000000"
+              >30-50</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/Other_Costs/50000000-75000000"
+              >50-75</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/Other_Costs/75000000-100000000"
+              >75-100</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/Other_Costs/100000000-200000000"
+              >100-200</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/Other_Costs/200000000-400000000"
+              >200-400</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/Other_Costs/400000000-700000000"
+              >400-700</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/Other_Costs/700000000-"
+              >700+</a
+            >
+          </div>
+        </div>
+
+        <div class="row">
+          <span class="col-2 display-4">Domestic Box office</span>
+          <div class="col-10">
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/Domestic_Box_office/0-10000000"
+              >0-10</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/Domestic_Box_office/10000000-30000000"
+              >10-30</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/Domestic_Box_office/30000000-50000000"
+              >30-50</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/Domestic_Box_office/50000000-75000000"
+              >50-75</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/Domestic_Box_office/75000000-100000000"
+              >75-100</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/Domestic_Box_office/100000000-200000000"
+              >100-200</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/Domestic_Box_office/200000000-400000000"
+              >200-400</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/Domestic_Box_office/400000000-700000000"
+              >400-700</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/Domestic_Box_office/700000000-"
+              >700+</a
+            >
+          </div>
+        </div>
+
+        <div class="row">
+          <span class="col-2 display-4">World Wide Box Office</span>
+          <div class="col-10">
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/World_Wide_Box_Office/0-10000000"
+              >0-10</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/World_Wide_Box_Office/10000000-30000000"
+              >10-30</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/World_Wide_Box_Office/30000000-50000000"
+              >30-50</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/World_Wide_Box_Office/50000000-75000000"
+              >50-75</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/World_Wide_Box_Office/75000000-100000000"
+              >75-100</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/World_Wide_Box_Office/100000000-200000000"
+              >100-200</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/World_Wide_Box_Office/200000000-400000000"
+              >200-400</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/World_Wide_Box_Office/400000000-700000000"
+              >400-700</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/World_Wide_Box_Office/700000000-"
+              >700+</a
+            >
+          </div>
+        </div>
+
+        <div class="row">
+          <span class="col-2 display-4">International Box Office</span>
+          <div class="col-10">
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/International_Box_Office/0-10000000"
+              >0-10</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/International_Box_Office/10000000-30000000"
+              >10-30</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/International_Box_Office/30000000-50000000"
+              >30-50</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/International_Box_Office/50000000-75000000"
+              >50-75</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/International_Box_Office/75000000-100000000"
+              >75-100</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/International_Box_Office/100000000-200000000"
+              >100-200</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/International_Box_Office/200000000-400000000"
+              >200-400</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/International_Box_Office/400000000-700000000"
+              >400-700</a
+            >
+            <a
+              class="btn btn-primary"
+              href="/RangeFilters/global/International_Box_Office/700000000-"
+              >700+</a
+            >
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
-
-{% comment %} global_box {% endcomment %}
 
 <div class="row">
   <div class="col-lg- col-md-12">
