@@ -75,7 +75,7 @@ def index(request,file_name):
             top_6_Genre_list.append(genre_month_filter(months,str(i).title()))
 
         context.update({'top_6_Genre_list':top_6_Genre_list})
-        print(context)
+        # print(context)
         print('---'*50)
         # genre_month_filter(months,'Action',context)
         # genre_month_filter(months,'Comedy',context)
@@ -320,8 +320,8 @@ def index(request,file_name):
         context.update({'movie_Sub_Genre_2_label':list(sgdf[:].to_dict()['Sub_Genre_2'].values())})
         context.update({'movie_Sub_Genre_2_label_count':list(sgdf[:].to_dict()['Sub_Genre_2_count'].values())})
         # print(context)
-
-
+        print('---'*50)
+        print(Movies_rating)
         context.update(
             {'data':d,
             'segment':'index',
