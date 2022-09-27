@@ -85,9 +85,9 @@ class global_box(models.Model):
     Genre=models.CharField(max_length=5000,null=True)
     Sub_Genera_1=models.CharField(max_length=5000,null=True)
     Sub_Genera_2=models.CharField(max_length=5000,null=True)
-    Production_Budget =models.CharField(max_length=5000, null=True)
-    Other_Costs =models.CharField(max_length=5000, null=True)
-    Profit  =models.CharField(max_length=5000, null=True)
+    Production_Budget =models.FloatField(null=True)
+    Other_Costs =models.FloatField(null=True)
+    Profit  =models.FloatField(null=True)
     Profitability =models.IntegerField(null=True)
     Rating =models.CharField(max_length=5000,null=True)
     Run_Time =models.CharField(max_length=5000,null=True)
@@ -109,9 +109,9 @@ class global_box(models.Model):
     Production_Country_2=models.CharField(max_length=5000,null=True)
     Production_Country_3=models.CharField(max_length=5000,null=True)
     Language =models.CharField(max_length=5000,null=True)
-    Domestic_Box_office =models.CharField(max_length=5000,null=True)
-    International_Box_Office =models.CharField(max_length=5000,null=True)
-    World_Wide_Box_Office =models.CharField(max_length=5000,null=True)
+    Domestic_Box_office =models.FloatField(null=True)
+    International_Box_Office =models.FloatField(null=True)
+    World_Wide_Box_Office =models.FloatField(null=True)
 
 
 
@@ -119,8 +119,8 @@ class prod_companies(models.Model):
 
     Production_Companies=models.CharField(max_length=5000,unique=True)
     No_of_Movies=models.IntegerField(null=True)
-    Total_Domestic_Box_Office=models.CharField(max_length=5000,null=True)
-    Total_Worldwide_Box_Office=models.CharField(max_length=5000,null=True)
+    Total_Domestic_Box_Office=models.FloatField(null=True)
+    Total_Worldwide_Box_Office=models.FloatField(null=True)
 
 
 class series(models.Model):
@@ -223,7 +223,7 @@ class netflix_Movies(models.Model):
     Genre =models.CharField(max_length=5000,null=True)
     Sub_Genre_1=models.CharField(max_length=5000,null=True)
     Sub_Genre_2=models.CharField(max_length=5000,null=True)
-    Rating=models.CharField(max_length=5000,null=True)
+    Rating=models.FloatField(null=True)
     Year_of_Release =models.CharField(max_length=5000,null=True)
     Country =models.CharField(max_length=5000,null=True)
     Run_Time=models.CharField(max_length=5000,null=True)

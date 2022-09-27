@@ -50,7 +50,7 @@
       <div class="card-header">
         <div class="row">
           <div class="col-sm-6 text-left">
-            <h5 class="card-category">Per day</h5>
+            <h5 class="card-category">Per Month</h5>
             <h2 class="card-title">Movies</h2>
           </div>
           <div class="col-sm-6">
@@ -187,12 +187,29 @@
     </div>
   </div>
 </div>
-
+<div class="row">
+  <div class="col-lg-12">
+    <div class="card card-chart">
+      <div class="card-header">
+        <h5 class="card-category">Most Movies from Genre</h5>
+        <h3 class="card-title">
+          <i class="fa fa-map-signs text-info"></i>
+          Movies/Genre
+        </h3>
+      </div>
+      <div class="card-body">
+        <div class="chart-area">
+          <canvas id="GenreChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="row">
   <div class="col-lg-6">
     <div class="card card-chart">
       <div class="card-header">
-        <h5 class="card-category">Most Movies from Genre</h5>
+        <h5 class="card-category">Most Movies from Sub Genre 1</h5>
         <h3 class="card-title">
           <i class="fa fa-map-signs text-info"></i>
           Movies/Sub Genre 1
@@ -209,7 +226,7 @@
   <div class="col-lg-6">
     <div class="card card-chart">
       <div class="card-header">
-        <h5 class="card-category">Most Movies from Genre</h5>
+        <h5 class="card-category">Most Movies from Sub Genre 2</h5>
         <h3 class="card-title">
           <i class="fa fa-map-signs text-info"></i>
           Movies/Sub Genre 2
@@ -218,25 +235,6 @@
       <div class="card-body">
         <div class="chart-area">
           <canvas id="Sub_Genre2Chart"></canvas>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="row">
-  <div class="col-lg-12">
-    <div class="card card-chart">
-      <div class="card-header">
-        <h5 class="card-category">Most Movies from Genre</h5>
-        <h3 class="card-title">
-          <i class="fa fa-map-signs text-info"></i>
-          Movies/Genre
-        </h3>
-      </div>
-      <div class="card-body">
-        <div class="chart-area">
-          <canvas id="GenreChart"></canvas>
         </div>
       </div>
     </div>
@@ -363,14 +361,14 @@
             <tr class="tablehead">
               <th class="text-primary text-nowrap" scope="col">ACTOR</th>
               <th class="text-primary text-nowrap" scope="col">Film</th>
-              <th class="text-primary text-nowrap" scope="col">CUM BO</th>
+              <th class="text-primary text-nowrap" scope="col">CUM BO USD</th>
             </tr>
 
             {% for i in lead_actor1_cum_bo|slice:":7" %}
             <tr>
               <td class="text-nowrap">{{i.0}}</td>
               <td class="text-nowrap">{{i.1 }}</td>
-              <td class="text-nowrap">{{i.2|floatformat:0|intcomma }}</td>
+              <td class="text-nowrap">$ {{i.2|floatformat:0|intcomma }}</td>
             </tr>
             {% endfor %}
           </table>
@@ -389,13 +387,13 @@
             <tr class="tablehead">
               <th class="text-primary text-nowrap" scope="col">Actor</th>
               <th class="text-primary text-nowrap" scope="col">Film</th>
-              <th class="text-primary text-nowrap" scope="col">CUM BO</th>
+              <th class="text-primary text-nowrap" scope="col">CUM BO USD</th>
             </tr>
             {% for i in lead_actor2_cum_bo|slice:":7" %}
             <tr>
               <td class="text-nowrap">{{i.0}}</td>
               <td class="text-nowrap">{{i.1 }}</td>
-              <td class="text-nowrap">SAR {{i.2|floatformat:0|intword}}</td>
+              <td class="text-nowrap">$ {{i.2|floatformat:0|intword}}</td>
             </tr>
             {% endfor %}
           </table>
@@ -560,9 +558,9 @@
   <div class="col-lg-12">
     <div class="card card-chart">
       <div class="card-header">
-        <h5 class="card-category">Movie Released per Months</h5>
+        <h5 class="card-category">Movie Released per Year</h5>
         <h3 class="card-title">
-          <i class="tim-icons icon-shape-star text-info"></i>Movie/Month
+          <i class="tim-icons icon-shape-star text-info"></i>Movie/Year
         </h3>
       </div>
       <div class="card-body">
@@ -1161,7 +1159,7 @@
     </div>
   </div>
 
-  <div class="col-lg-4">
+  <div class="col-lg-4 d-none">
     <div class="card card-chart">
       <div class="card-header">
         <h5 class="card-category">Most Movies from Country</h5>
@@ -1193,7 +1191,7 @@
 </div>
 
 <div class="row">
-  <div class="col-lg-12">
+  <div class="col-lg-12 d-none">
     <div class="card card-chart">
       <div class="card-header">
         <h5 class="card-category">Movie Released per Months</h5>
@@ -1223,7 +1221,7 @@
       </div>
     </div>
   </div>
-  <div class="col-lg-8">
+  <div class="col-lg-8 d-none">
     <div class="card card-chart">
       <div class="card-header">
         <h5 class="card-category">Most Movies from Country</h5>
@@ -1239,7 +1237,7 @@
       </div>
     </div>
   </div>
-  <div class="col-lg-4">
+  <div class="col-lg-4 d-none">
     <div class="card card-chart">
       <div class="card-header">
         <h5 class="card-category">Most Movies From</h5>
@@ -1257,7 +1255,7 @@
   </div>
 </div>
 
-<div class="row">
+<div class="row d-none">
   <div class="col-lg-6">
     <div class="card card-chart">
       <div class="card-header">
@@ -1293,7 +1291,7 @@
   </div>
 </div>
 
-<div class="row">
+<div class="row d-none">
   <div class="col-lg-12">
     <div class="card card-chart">
       <div class="card-header">
@@ -1451,7 +1449,7 @@
         <h5 class="card-category">Most Movies from Country</h5>
         <h3 class="card-title">
           <i class="fa fa-map-signs text-info"></i>
-          Movies/Country
+          Movies and Series/Country
         </h3>
       </div>
       <div class="card-body">
@@ -1478,15 +1476,32 @@
     </div>
   </div>
 </div>
-
 <div class="row">
   <div class="col-lg-12">
     <div class="card card-chart">
       <div class="card-header">
-        <h5 class="card-category">Most Movies from Genre</h5>
+        <h5 class="card-category">Most Movies and Series from Genre</h5>
         <h3 class="card-title">
           <i class="fa fa-map-signs text-info"></i>
-          Movies/Sub Genre 1
+          Movies and Series/Genre
+        </h3>
+      </div>
+      <div class="card-body">
+        <div class="chart-area">
+          <canvas id="GenreChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-lg-12">
+    <div class="card card-chart">
+      <div class="card-header">
+        <h5 class="card-category">Most Movies and Series from Genre</h5>
+        <h3 class="card-title">
+          <i class="fa fa-map-signs text-info"></i>
+          Movies and Series/Sub Genre 1
         </h3>
       </div>
       <div class="card-body">
@@ -1515,26 +1530,7 @@
   </div>
 </div>
 
-<div class="row">
-  <div class="col-lg-12">
-    <div class="card card-chart">
-      <div class="card-header">
-        <h5 class="card-category">Most Movies from Genre</h5>
-        <h3 class="card-title">
-          <i class="fa fa-map-signs text-info"></i>
-          Movies/Genre
-        </h3>
-      </div>
-      <div class="card-body">
-        <div class="chart-area">
-          <canvas id="GenreChart"></canvas>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="row">
+<div class="row d-none">
   <div class="col-lg-6 col-md-12">
     <div class="card">
       <div class="card-header d-flex justify-content-between">
@@ -1706,7 +1702,6 @@
           Highest Points
         </h5>
         <h3 class="card-title">
-          <i class="fa fa-dollar-sign text-success"></i>
           {% load humanize %} {{data.first.2|floatformat:0|intword}}
         </h3>
       </div>
@@ -1763,7 +1758,24 @@
     </div>
   </div>
 </div>
-
+<div class="row">
+  <div class="col-lg-12">
+    <div class="card card-chart">
+      <div class="card-header">
+        <h5 class="card-category">Most Movies from Genre</h5>
+        <h3 class="card-title">
+          <i class="fa fa-map-signs text-info"></i>
+          Movies/Genre
+        </h3>
+      </div>
+      <div class="card-body">
+        <div class="chart-area">
+          <canvas id="GenreChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="row">
   <div class="col-lg-6">
     <div class="card card-chart">
@@ -1794,25 +1806,6 @@
       <div class="card-body">
         <div class="chart-area">
           <canvas id="Sub_Genre2Chart"></canvas>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="row">
-  <div class="col-lg-12">
-    <div class="card card-chart">
-      <div class="card-header">
-        <h5 class="card-category">Most Movies from Genre</h5>
-        <h3 class="card-title">
-          <i class="fa fa-map-signs text-info"></i>
-          Movies/Genre
-        </h3>
-      </div>
-      <div class="card-body">
-        <div class="chart-area">
-          <canvas id="GenreChart"></canvas>
         </div>
       </div>
     </div>
@@ -2068,7 +2061,6 @@
           Highest Points
         </h5>
         <h3 class="card-title">
-          <i class="fa fa-dollar-sign text-success"></i>
           {% load humanize %} {{data.first.2|floatformat:0|intword}}
         </h3>
       </div>
@@ -2125,7 +2117,24 @@
     </div>
   </div>
 </div>
-
+<div class="row">
+  <div class="col-lg-12">
+    <div class="card card-chart">
+      <div class="card-header">
+        <h5 class="card-category">Most Movies from Genre</h5>
+        <h3 class="card-title">
+          <i class="fa fa-map-signs text-info"></i>
+          Movies/Genre
+        </h3>
+      </div>
+      <div class="card-body">
+        <div class="chart-area">
+          <canvas id="GenreChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="row">
   <div class="col-lg-6">
     <div class="card card-chart">
@@ -2156,25 +2165,6 @@
       <div class="card-body">
         <div class="chart-area">
           <canvas id="Sub_Genre2Chart"></canvas>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="row">
-  <div class="col-lg-12">
-    <div class="card card-chart">
-      <div class="card-header">
-        <h5 class="card-category">Most Movies from Genre</h5>
-        <h3 class="card-title">
-          <i class="fa fa-map-signs text-info"></i>
-          Movies/Genre
-        </h3>
-      </div>
-      <div class="card-body">
-        <div class="chart-area">
-          <canvas id="GenreChart"></canvas>
         </div>
       </div>
     </div>

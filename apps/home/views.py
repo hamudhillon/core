@@ -606,9 +606,9 @@ def index(request,file_name):
         DBO=global_box.objects.exclude(Movie__in="-").values_list('Movie','Domestic_Box_office').order_by('-Domestic_Box_office')
         IBO=global_box.objects.exclude(Movie__in="-").values_list('Movie','International_Box_Office').order_by('-International_Box_Office')
         World_Wide_Box_Office=global_box.objects.exclude(Movie__in="-").values_list('Movie','World_Wide_Box_Office').order_by('-World_Wide_Box_Office')
-        Production_Country_1_World_Wide_Box_Office=global_box.objects.exclude(Production_Country_1__in="-").values_list('Production_Country_1','World_Wide_Box_Office').order_by('-World_Wide_Box_Office')
-        Production_Country_2_World_Wide_Box_Office=global_box.objects.exclude(Production_Country_2__in="-").values_list('Production_Country_2','World_Wide_Box_Office').order_by('-World_Wide_Box_Office')
-        Production_Country_3_World_Wide_Box_Office=global_box.objects.exclude(Production_Country_3__in="-").values_list('Production_Country_3','World_Wide_Box_Office').order_by('-World_Wide_Box_Office')
+        Production_Country_1_World_Wide_Box_Office=global_box.objects.exclude(Prod_Company_1__in="-").values_list('Prod_Company_1','World_Wide_Box_Office').order_by('-World_Wide_Box_Office')
+        Production_Country_2_World_Wide_Box_Office=global_box.objects.exclude(Prod_Company_2__in="-").values_list('Prod_Company_2','World_Wide_Box_Office').order_by('-World_Wide_Box_Office')
+        Production_Country_3_World_Wide_Box_Office=global_box.objects.exclude(Prod_Company_3__in="-").values_list('Prod_Company_3','World_Wide_Box_Office').order_by('-World_Wide_Box_Office')
         
         # lead_actor1_cum_bo=global_box.objects.exclude(Lead_Actor_1_Name__in='-').exclude(Movie__in="-").values_list('Lead_Actor_1_Name','FILM','CUM_BO').order_by('-CUM_BO')
         # lead_actor2_cum_bo=global_box.objects.exclude(Lead_Actor_2_Name__in='-').exclude(Movie__in="-").values_list('Lead_Actor_2_Name','FILM','CUM_BO').order_by('-CUM_BO')
@@ -2156,7 +2156,7 @@ def delete_row(request,model_name,id):
 
 @login_required(login_url="/login/")
 def filter(request,model_name,f,order):
-    if 'ksa'==model_name:
+    if 'data'==model_name:
             temp_name='home/ui-tables.html'
             model=data
     elif 'global'==model_name:
@@ -2284,11 +2284,11 @@ def uploads(request):
                                 print(df.loc[i,'Movie'])
                                 ob=global_box()
                                 ob.Rank=r
-                                ob.Movie =str(df.loc[i,'Movie'])
+                                ob.Movie =str(df.loc[i,'Movie']).rstrip()
                                 ob.Release_Year= df.loc[i,'Release Year']
-                                ob.Genre=str(df.loc[i,'Genre'])
-                                ob.Sub_Genera_1=str(df.loc[i,'Sub-Genera 1'])
-                                ob.Sub_Genera_2=str(df.loc[i,'Sub-Genera 2'])
+                                ob.Genre=str(df.loc[i,'Genre']).lower().rstrip()
+                                ob.Sub_Genera_1=str(df.loc[i,'Sub-Genera 1']).lower().rstrip()
+                                ob.Sub_Genera_2=str(df.loc[i,'Sub-Genera 2']).lower().rstrip()
                                 ob.Production_Budget= float(str(df.loc[i,'Production Budget']).replace(' ','').replace('$','').replace(',',''))
                                 ob.Other_Costs =float(str(df.loc[i,'Other Costs']).replace(' ','').replace('$','').replace(',',''))
                                 ob.Profit  =float(str(df.loc[i,'Profit']).replace('(','').replace(')','').replace(' ','').replace('$','').replace(',',''))
@@ -2359,12 +2359,12 @@ def uploads(request):
                                 
                                 ob.Rank=r
                                 ob.Series_Name=str(df.loc[i,'Series Name'])
-                                ob.Genre =str(df.loc[i,'Genre'])
-                                ob.Sub_Genre_1 =str(df.loc[i,'Sub Genre 1'])
-                                ob.Sub_Genre_2 =str(df.loc[i,'Sub Genre 2'])
+                                ob.Genre =str(df.loc[i,'Genre']).lower().rstrip()
+                                ob.Sub_Genre_1 =str(df.loc[i,'Sub Genre 1']).lower().rstrip()
+                                ob.Sub_Genre_2 =str(df.loc[i,'Sub Genre 2']).lower().rstrip()
                                 ob.Rating =float(rating)
                                 ob.Year_of_Release =str(df.loc[i,'Year of Release'])
-                                ob.Country =str(df.loc[i,'Country'])
+                                ob.Country =str(df.loc[i,'Country']).lower().rstrip()
                                 ob.Seasons =float(str(df.loc[i,'of Seasons']).replace(' ','').replace('$','').replace(',',''))
                                 ob.Episodes_Season =float(str(df.loc[i,'of Episodes / Season']).replace(' ','').replace('$','').replace(',',''))
                                 ob.Length_of_Episodes =str(df.loc[i,'Length of Episodes'])
@@ -2390,7 +2390,7 @@ def uploads(request):
                                 ob.Lead_Actor_2_Age =float(str(df.loc[i,'Lead Actor 2 Age']).replace(' ','').replace('$','').replace(',',''))
                                 ob.Lead_Actor_2_Nationality=str(df.loc[i,'Lead Actor 2 Nationality'])
                                 ob.Target_Audience =str(df.loc[i,'Target Audience'])
-                                ob.Streamer=str(df.loc[i,'Streamer'])
+                                ob.Streamer=str(df.loc[i,'Streamer']).lower().rstrip()
                                 ob.Awards_1 =str(df.loc[i,'Awards 1'])
                                 ob.Awards_2=str(df.loc[i,'Awards 2'])
                                 ob.Awards_3 =str(df.loc[i,'Awards 3'])
@@ -2520,7 +2520,15 @@ def uploads(request):
                     df=pd.read_excel(file_name,engine='openpyxl',sheet_name=sheet)
 
                     # print(df)
+
+                    
                     df.columns = [c.strip().replace('  ',' ').replace('.','').replace('# ','').replace('#','').replace('1st','First') for c in df.columns.values.tolist()]
+                    
+                    
+                    # for col in df.columns:
+                    #     print(df[col])
+                    # df = df.apply(lambda x: x.str.lower() if x.dtype=='object' else x)
+                    # df = df.applymap(lambda s: s.lower() if type(s) == str else s)
                     print(df)
                     # print(df['Genre'])
                     df.fillna("-",inplace=True)
@@ -2559,26 +2567,26 @@ def uploads(request):
                                 ob=data()
                                 ob.Rank=r
                                 ob.FILM=df.loc[i,'FILM']
-                                ob.Genre=df.loc[i,'Genre']
-                                ob.Sub_Genre_1=df.loc[i,'Sub Genre 1']
-                                ob.Sub_Genre_2=df.loc[i,'Sub Genre 2']
+                                ob.Genre=str(df.loc[i,'Genre']).lower().rstrip()
+                                ob.Sub_Genre_1=str(df.loc[i,'Sub Genre 1']).lower().rstrip()
+                                ob.Sub_Genre_2=str(df.loc[i,'Sub Genre 2']).lower().rstrip()
                                 ob.Rating=str(df.loc[i,'Rating']).replace('/10','')
                                 ob.Year_of_Release =df.loc[i,'Year of Release']
-                                ob.Country =df.loc[i,'Country']
+                                ob.Country =str(df.loc[i,'Country']).lower().rstrip()
                                 ob.Run_Time=df.loc[i,'Run Time']
-                                ob.Franchise=df.loc[i,'Franchise']
+                                ob.Franchise=str(df.loc[i,'Franchise']).lower().rstrip()
                                 ob.Synopsis =df.loc[i,'Synopsis']
-                                ob.Keywords_1=df.loc[i,'Keywords 1']
-                                ob.Keywords_2=df.loc[i,'Keywords 2']
-                                ob.Keywords_3=df.loc[i,'Keywords 3']
-                                ob.Keywords_4=df.loc[i,'Keywords 4']
-                                ob.Production_Method =df.loc[i,'Production Method']
+                                ob.Keywords_1=str(df.loc[i,'Keywords 1']).lower().rstrip()
+                                ob.Keywords_2=str(df.loc[i,'Keywords 2']).lower().rstrip()
+                                ob.Keywords_3=str(df.loc[i,'Keywords 3']).lower().rstrip()
+                                ob.Keywords_4=str(df.loc[i,'Keywords 4']).lower().rstrip()
+                                ob.Production_Method =str(df.loc[i,'Production Method']).lower().rstrip()
                                 ob.Creative_Type =df.loc[i,'Creative Type']
                                 ob.Production_Companies=df.loc[i,'Production Companies']
-                                ob.Production_Company_1=df.loc[i,'Production Company 1']
-                                ob.Production_Company_2=df.loc[i,'Production Company 2']
-                                ob.Production_Company_3=df.loc[i,'Production Company 3']
-                                ob.Production_Company_4=df.loc[i,'Production Company 4']
+                                ob.Production_Company_1=df.loc[i,'Production Company 1'].lower().rstrip()
+                                ob.Production_Company_2=df.loc[i,'Production Company 2'].lower().rstrip()
+                                ob.Production_Company_3=df.loc[i,'Production Company 3'].lower().rstrip()
+                                ob.Production_Company_4=df.loc[i,'Production Company 4'].lower().rstrip()
                                 ob.Director=df.loc[i,'Director']
                                 ob.Lead_Actor_1_Name =df.loc[i,'Lead Actor 1 Name']
                                 ob.Lead_Actor_1_Gender=df.loc[i,'Lead Actor 1 Gender']
@@ -2589,7 +2597,7 @@ def uploads(request):
                                 ob.Lead_Actor_2_Age =df.loc[i,'Lead Actor 2 Age']
                                 ob.Lead_Actor_2_Nationality=df.loc[i,'Lead Actor 2 Nationality']
                                 ob.Target_Audience =df.loc[i,'Target Audience']
-                                ob.Streamer =df.loc[i,'Streamer']
+                                ob.Streamer =str(df.loc[i,'Streamer']).lower().rstrip()
                                 ob.Awards_1  =df.loc[i,'Awards 1']
                                 ob.Awards_2  =df.loc[i,'Awards 2']
                                 ob.Awards_3  =df.loc[i,'Awards 3']
@@ -2604,8 +2612,8 @@ def uploads(request):
                                 ob.First_Week_ADM  =df.loc[i,'First Week ADM']
                                 ob.CUM_BO  =df.loc[i,'CUM BO']
                                 ob.CUM_ADM = df.loc[i,'CUM ADM']
-                                ob.CUM_GBO_USD = str(df.loc[i,'CUM GBO USD']).replace('$','').replace('-','0')
-                                
+                                ob.CUM_GBO_USD = str(df.loc[i,'CUM GBO USD']).replace('$','').replace('-','0').replace(',','')
+                        
                                 ob.save()
                         
                             except IntegrityError:
@@ -2666,12 +2674,12 @@ def uploads(request):
                                 ob.Name =df.loc[i,'Name']
                                 ob.Points =df.loc[i,'Points']
                                 ob.Rank=df.loc[i,'Rank']
-                                ob.Genre =df.loc[i,'Genre']
-                                ob.Sub_Genre_1=df.loc[i,'Sub Genre 1']
-                                ob.Sub_Genre_2=df.loc[i,'Sub Genre 2']
+                                ob.Genre =df.loc[i,'Genre'].lower().rstrip()
+                                ob.Sub_Genre_1=df.loc[i,'Sub Genre 1'].lower().rstrip()
+                                ob.Sub_Genre_2=df.loc[i,'Sub Genre 2'].lower().rstrip()
                                 ob.Rating=df.loc[i,'Rating']
                                 ob.Year_of_Release =df.loc[i,'Year of Release']
-                                ob.Country =df.loc[i,'Country']
+                                ob.Country =df.loc[i,'Country'].lower().rstrip()
                                 ob.of_Seasons=df.loc[i,'of Seasons']
                                 ob.of_episodes_Season=df.loc[i,'of episodes/ Season']
                                 ob.Length_of_Episode=df.loc[i,'Length of Episode']
@@ -2697,7 +2705,7 @@ def uploads(request):
                                 ob.Lead_Actor_2_Age =df.loc[i,'Lead Actor 2 Age']
                                 ob.Lead_Actor_2_Nationality=df.loc[i,'Lead Actor 2 Nationality']
                                 ob.Target_Audience =df.loc[i,'Target Audience']
-                                ob.Streamer=df.loc[i,'Streamer']
+                                ob.Streamer=df.loc[i,'Streamer'].lower().rstrip()
                                 ob.Awards_1=df.loc[i,'Awards 1']
                                 ob.Awards_2 =df.loc[i,'Awards 2']
                                 ob.Awards_3 =df.loc[i,'Awards 3']
@@ -2760,15 +2768,15 @@ def uploads(request):
              
                                 ob.Year=df.loc[i,'Year']
                                 ob.Week=df.loc[i,'Week']
-                                ob.Name =df.loc[i,'Name']
+                                ob.Name =str(df.loc[i,'Name']).rstrip()
                                 ob.Points =df.loc[i,'Points']
                                 ob.Rank=df.loc[i,'Rank']
-                                ob.Genre =df.loc[i,'Genre']
-                                ob.Sub_Genre_1=df.loc[i,'Sub Genre 1']
-                                ob.Sub_Genre_2=df.loc[i,'Sub Genre 2']
-                                ob.Rating=df.loc[i,'Rating']
+                                ob.Genre =df.loc[i,'Genre'].lower().rstrip()
+                                ob.Sub_Genre_1=df.loc[i,'Sub Genre 1'].lower().rstrip()
+                                ob.Sub_Genre_2=df.loc[i,'Sub Genre 2'].lower().rstrip()
+                                ob.Rating=float(str(df.loc[i,'Rating']).replace('/10','').replace('·','').replace('IMDb','').replace('MDb','').replace('mdb','').replace('MDB','').replace('I','').replace('-','0').replace('.o','.0').replace('y',''))
                                 ob.Year_of_Release =df.loc[i,'Year of Release']
-                                ob.Country =df.loc[i,'Country']
+                                ob.Country =df.loc[i,'Country'].lower().rstrip()
                                 ob.Run_Time=df.loc[i,'Run Time']
                                 ob.Franchise=df.loc[i,'Franchise']
                                 ob.Synopsis =df.loc[i,'Synopsis']
@@ -2793,7 +2801,7 @@ def uploads(request):
                                 ob.Lead_Actor_2_Age =df.loc[i,'Lead Actor 2 Age']
                                 ob.Lead_Actor_2_Nationality=df.loc[i,'Lead Actor 2 Nationality']
                                 ob.Target_Audience =df.loc[i,'Target Audience']
-                                ob.Streamer=df.loc[i,'Streamer']
+                                ob.Streamer=df.loc[i,'Streamer'].lower().rstrip()
                                 ob.Awards_1=df.loc[i,'Awards 1']
                                 ob.Awards_2 =df.loc[i,'Awards 2']
                                 ob.Awards_3 =df.loc[i,'Awards 3']
