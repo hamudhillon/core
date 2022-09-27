@@ -74,7 +74,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
      'default': {
          'ENGINE': 'django.db.backends.sqlite3',
-         'NAME': '/home/testingDATA001/db.sqlite3',
+         'NAME': 'db.sqlite3',
      },
     # 'default': {
     # 'ENGINE': 'django.db.backends.postgresql_psycopg2',
