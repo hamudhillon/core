@@ -18,7 +18,7 @@ SECRET_KEY = config('SECRET_KEY', default='S#perS3crEt_1122')
 DEBUG = config('DEBUG', default=True, cast=bool)
 
 # load production server from .env
-ALLOWED_HOSTS = ['localhost', '127.0.0.1','lyracoreproject.herokuapp.com', config('SERVER', default='127.0.0.1'),'testingDATA001.pythonanywhere.com']
+ALLOWED_HOSTS = ['13.232.211.208','localhost', '127.0.0.1','lyracoreproject.herokuapp.com', config('SERVER', default='127.0.0.1'),'testingDATA001.pythonanywhere.com']
 
 # Application definition
 
