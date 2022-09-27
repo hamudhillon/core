@@ -194,7 +194,7 @@ def index(request,file_name):
 
         })
 
-        Movies_rating=data.objects.exclude(FILM__in='-').values_list('Rating','FILM','CUM_GBO_USD')
+        Movies_rating=data.objects.exclude(FILM__in='-').values_list('Rating','FILM','CUM_GBO_USD').exclude(Rating__in=['','nan','none',None]).order_by('-Rating')
         Movies_rating_Amazon=data.objects.exclude(FILM__in='-').filter(Streamer__contains='Amazon').values_list('Rating','FILM','Streamer').exclude(Rating__in=['','nan','none',None]).order_by('-Rating')
         Movies_rating_netflix=data.objects.exclude(FILM__in='-').filter(Streamer__contains='Netflix').values_list('Rating','FILM','Streamer').exclude(Rating__in=['','nan','none',None]).order_by('-Rating')
         Movies_rating_netflix=data.objects.exclude(FILM__in='-').filter(Streamer__contains='Netflix').values_list('Rating','FILM','Streamer').exclude(Rating__in=['','nan','none',None]).order_by('-Rating')
