@@ -117,16 +117,14 @@
             class="dropdown-menu dropdown-menu-right"
             aria-labelledby="dropdownMenuLink"
           >
-            <a class="dropdown-item" href="#pablo">Action</a>
-            <a class="dropdown-item" href="#pablo">Another action</a>
-            <a class="dropdown-item" href="#pablo">Something else</a>
+            <button class="dropdown-item" id="expo">Export</button>
           </div>
         </div>
       </div>
 
       <div class="card-body">
         <div class="table-responsive">
-          <table class="table tablesorter" id="">
+          <table class="table tablesorter" id="DataTable">
             {% for i in data %} {% if forloop.first %}
 
             <tr class="tablehead">
@@ -187,4 +185,14 @@
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->
-{% block javascripts %}{% endblock javascripts %}
+{% block javascripts %}
+
+<script>
+  document.querySelector("#expo").addEventListener("click", function () {
+    var table = new Table2Excel();
+
+    table.export(document.querySelectorAll("#DataTable"));
+  });
+</script>
+
+{% endblock javascripts %}
