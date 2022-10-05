@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 """
-Copyright (c) 2019 - present AppSeed.us
+
 """
 from operator import or_
 from django import template
@@ -2033,6 +2033,7 @@ def tables(request,table_name):
     d=model.objects.values().distinct()
     filter_s=filter_name(request.GET,queryset=d)
     d=filter_s.qs
+    
     return render(request,temp_name,
         {
             'data':d,
